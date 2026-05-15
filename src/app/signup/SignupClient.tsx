@@ -36,6 +36,12 @@ export function SignupClient() {
     }
 
     const supabase = createSupabaseBrowserClient();
+    if (!supabase) {
+      setErrorText("Supabase is not configured yet. Please set SUPABASE URL and ANON key.");
+      setSubmitting(false);
+      return;
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -123,4 +129,3 @@ export function SignupClient() {
     </div>
   );
 }
-

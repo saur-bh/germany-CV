@@ -23,6 +23,11 @@ export function Navigation() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!supabase) {
+      setUserEmail(null);
+      return;
+    }
+
     supabase.auth.getUser().then(({ data }) => {
       setUserEmail(data.user?.email ?? null);
     });
@@ -75,7 +80,7 @@ export function Navigation() {
                 variant="outline"
                 size="sm"
                 onClick={async () => {
-                  await supabase.auth.signOut();
+                  await supabase?.auth.signOut();
                   window.location.href = "/";
                 }}
               >
@@ -131,7 +136,7 @@ export function Navigation() {
               className="w-full"
               onClick={async () => {
                 setIsOpen(false);
-                await supabase.auth.signOut();
+                await supabase?.auth.signOut();
                 window.location.href = "/";
               }}
             >

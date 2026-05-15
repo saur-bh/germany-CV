@@ -28,6 +28,12 @@ export function LoginClient() {
     setErrorText(null);
 
     const supabase = createSupabaseBrowserClient();
+    if (!supabase) {
+      setErrorText("Supabase is not configured yet. Please set SUPABASE URL and ANON key.");
+      setSubmitting(false);
+      return;
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
