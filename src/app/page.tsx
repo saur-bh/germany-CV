@@ -18,7 +18,6 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export default function LandingPage() {
   const heroImg = PlaceHolderImages.find(img => img.id === 'hero-image');
-  const templateImg = PlaceHolderImages.find(img => img.id === 'cv-template-preview');
 
   return (
     <div className="flex flex-col gap-20 pb-20">
@@ -63,13 +62,19 @@ export default function LandingPage() {
           
           <div className="relative">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-primary-foreground/10 aspect-[4/3] lg:aspect-auto">
-              <Image 
-                src={heroImg?.imageUrl || ""} 
-                alt="Working in Germany" 
-                fill
-                className="object-cover"
-                data-ai-hint="Berlin office"
-              />
+              {heroImg?.imageUrl ? (
+                <Image 
+                  src={heroImg.imageUrl} 
+                  alt="Working in Germany" 
+                  fill
+                  className="object-cover"
+                  data-ai-hint="Berlin office"
+                />
+              ) : (
+                <div className="w-full h-full bg-muted flex items-center justify-center">
+                  <FileText className="h-12 w-12 text-muted-foreground opacity-20" />
+                </div>
+              )}
             </div>
             <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-xl shadow-xl max-w-xs hidden md:block border">
               <div className="flex items-center gap-3 mb-2">
