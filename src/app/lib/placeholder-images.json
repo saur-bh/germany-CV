@@ -1,0 +1,29 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "hero-image",
+      "description": "Professional setting for job seeking in Germany",
+      "imageUrl": "https://picsum.photos/seed/deutschcv-hero/1200/800",
+      "imageHint": "Berlin office"
+    },
+    {
+      "id": "cv-template-preview",
+      "description": "Clean modern ATS CV layout",
+      "imageUrl": "https://picsum.photos/seed/cv-template/600/800",
+      "imageHint": "professional resume"
+    },
+    {
+      "id": "testimonial-1",
+      "description": "Happy professional",
+      "imageUrl": "https://picsum.photos/seed/user1/100/100",
+      "imageHint": "smiling person"
+    },
+    {
+      "id": "testimonial-2",
+      "description": "Career consultant",
+      "imageUrl": "https://picsum.photos/seed/user2/100/100",
+      "imageHint": "professional woman"
+    }
+  ]
+}
