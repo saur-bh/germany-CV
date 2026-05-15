@@ -8,7 +8,6 @@ import {
   Award, 
   ShieldCheck, 
   Search, 
-  Sparkles,
   AlertCircle,
   FileText
 } from "lucide-react";
@@ -38,11 +37,11 @@ export default function LandingPage() {
               Master Your Job Search in <span className="text-accent underline decoration-wavy underline-offset-8">Germany</span>
             </h1>
             <p className="text-lg text-primary-foreground/80 max-w-xl leading-relaxed">
-              Create an ATS-optimized CV that meets strict German standards. Use our expert guides, modern templates, and AI-powered builder to secure your dream role.
+              Create an ATS-friendly CV that meets strict German standards. Built especially for Indians applying for jobs in Germany.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-white font-semibold">
-                <Link href="/builder">
+                <Link href="/signup">
                   Start Building Your CV <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
@@ -68,24 +67,12 @@ export default function LandingPage() {
                   alt="Working in Germany" 
                   fill
                   className="object-cover"
-                  data-ai-hint="Berlin office"
                 />
               ) : (
                 <div className="w-full h-full bg-muted flex items-center justify-center">
                   <FileText className="h-12 w-12 text-muted-foreground opacity-20" />
                 </div>
               )}
-            </div>
-            <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-xl shadow-xl max-w-xs hidden md:block border">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-green-100 rounded-lg text-green-600">
-                  <Sparkles className="h-5 w-5" />
-                </div>
-                <span className="font-bold text-sm">AI Optimization Active</span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Our AI suggests precise keywords for German ATS systems based on your experience.
-              </p>
             </div>
           </div>
         </div>
@@ -224,7 +211,7 @@ export default function LandingPage() {
           </Card>
 
           <Card className="overflow-hidden border-2 border-green-100 bg-green-50/20">
-            <div className="bg-green-600 text-white text-xs font-bold px-3 py-1 uppercase tracking-widest text-center">DeutschCV Optimized</div>
+            <div className="bg-green-600 text-white text-xs font-bold px-3 py-1 uppercase tracking-widest text-center">GermanCV Optimized</div>
             <CardContent className="p-8 space-y-4">
               <h4 className="font-bold text-xl text-primary">Johannes Mueller</h4>
               <p className="text-xs text-muted-foreground">Professional Summary - Targeted at Senior Software Engineer</p>
@@ -291,7 +278,7 @@ export default function LandingPage() {
           <div className="relative z-10 space-y-6 max-w-2xl mx-auto">
             <h2 className="text-4xl md:text-5xl font-bold font-headline">Ready to apply for jobs in Germany?</h2>
             <p className="text-xl text-primary-foreground/80">
-              Join thousands of international candidates using DeutschCV to land interviews at top German companies.
+              Join thousands of candidates using GermanCV to land interviews at top German companies.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-white px-10 text-lg">

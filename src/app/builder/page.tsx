@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { 
   User, 
@@ -15,7 +16,6 @@ import {
   AlertCircle,
   FileText,
   Trash2,
-  Sparkles,
   Info
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
@@ -24,11 +24,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { generateProfileSummary } from "@/ai/flows/generate-profile-summary";
-import { generateSkillSuggestions } from "@/ai/flows/generate-skill-suggestions";
-import { refineExperienceBulletPoints } from "@/ai/flows/refine-experience-bullet-points";
-
-const GERMAN_CV_GUIDELINES = "Use simple, clean structure. No tables, icons, or graphics. Focus on quantifiable achievements. Use CEFR for languages. Clearly state work authorization status for Germany.";
 
 const steps = [
   { id: "personal", title: "Personal Details", icon: User },
@@ -46,13 +41,11 @@ export default function BuilderPage() {
   const [cvData, setCvData] = useState({
     personal: { fullName: "", email: "", phone: "", address: "", linkedin: "", workAuth: "" },
     summary: "",
-    experience: [{ id: 1, title: "", company: "", duration: "", description: "", bullets: [] as string[] }],
+    experience: [{ id: 1, title: "", company: "", duration: "", description: "" }],
     education: [{ id: 1, degree: "", school: "", year: "" }],
     skills: [] as string[],
     languages: [{ id: 1, name: "", level: "A1" }],
   });
-
-  const [isGenerating, setIsGenerating] = useState(false);
 
   const updateCV = (section: string, data: any) => {
     setCvData(prev => ({ ...prev, [section]: data }));
@@ -62,71 +55,6 @@ export default function BuilderPage() {
   const prevStep = () => currentStep > 0 && setCurrentStep(currentStep - 1);
 
   const progress = ((currentStep + 1) / steps.length) * 100;
-
-  const handleGenerateSummary = async () => {
-    if (!cvData.experience[0]?.description) {
-      toast({ title: "More info needed", description: "Please add some experience first.", variant: "destructive" });
-      return;
-    }
-    setIsGenerating(true);
-    try {
-      const summary = await generateProfileSummary({
-        experience: cvData.experience.map(e => `${e.title} at ${e.company}`).join(". "),
-        skills: cvData.skills.join(", "),
-        germanCVGuidelines: GERMAN_CV_GUIDELINES
-      });
-      updateCV("summary", summary);
-      toast({ title: "Summary Generated", description: "AI has crafted your professional summary." });
-    } catch (error) {
-      toast({ title: "Error", description: "Failed to generate summary.", variant: "destructive" });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleRefineBullets = async (index: number) => {
-    const exp = cvData.experience[index];
-    if (!exp.description || !exp.title) {
-      toast({ title: "More info needed", description: "Job title and description are required.", variant: "destructive" });
-      return;
-    }
-    setIsGenerating(true);
-    try {
-      const bullets = await refineExperienceBulletPoints({
-        experienceText: exp.description,
-        jobTitle: exp.title,
-        companyName: exp.company,
-        duration: exp.duration,
-        germanCVGuidelines: GERMAN_CV_GUIDELINES
-      });
-      const newExp = [...cvData.experience];
-      newExp[index] = { ...exp, bullets };
-      updateCV("experience", newExp);
-    } catch (error) {
-      toast({ title: "Error", description: "Failed to refine bullets.", variant: "destructive" });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleSuggestSkills = async () => {
-    if (cvData.experience.length === 0) {
-      toast({ title: "More info needed", description: "Add experience to suggest skills.", variant: "destructive" });
-      return;
-    }
-    setIsGenerating(true);
-    try {
-      const result = await generateSkillSuggestions({
-        jobRoles: cvData.experience.map(e => e.title),
-        experience: cvData.experience.map(e => e.description).join(" ")
-      });
-      updateCV("skills", Array.from(new Set([...cvData.skills, ...result.skills])));
-    } catch (error) {
-      toast({ title: "Error", description: "Failed to suggest skills.", variant: "destructive" });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   return (
     <div className="bg-muted/30 min-h-screen pb-20">
@@ -213,18 +141,7 @@ export default function BuilderPage() {
 
                 {currentStep === 1 && (
                   <div className="space-y-6 animate-in fade-in duration-500">
-                    <div className="flex justify-between items-center">
-                      <Label htmlFor="summary">Professional Summary</Label>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="text-accent border-accent hover:bg-accent/5"
-                        onClick={handleGenerateSummary}
-                        disabled={isGenerating}
-                      >
-                        <Sparkles className="mr-1 h-4 w-4" /> {isGenerating ? "Generating..." : "Generate with AI"}
-                      </Button>
-                    </div>
+                    <Label htmlFor="summary">Professional Summary</Label>
                     <Textarea 
                       id="summary" 
                       className="min-h-[200px]"
@@ -292,9 +209,9 @@ export default function BuilderPage() {
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <Label>Raw Description / Responsibilities</Label>
+                          <Label>Description / Bullet Points</Label>
                           <Textarea 
-                            placeholder="Briefly describe what you did..."
+                            placeholder={"Write 3-6 bullet points (one per line). Example:\nImplemented X to reduce Y by 25%\nBuilt Z using React + Node\nImproved performance from A to B"}
                             value={exp.description}
                             onChange={(e) => {
                               const newExp = [...cvData.experience];
@@ -303,34 +220,12 @@ export default function BuilderPage() {
                             }}
                           />
                         </div>
-                        <div className="pt-4 border-t space-y-4">
-                          <div className="flex justify-between items-center">
-                            <p className="text-sm font-bold">Optimized Bullet Points</p>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="text-accent border-accent"
-                              onClick={() => handleRefineBullets(idx)}
-                              disabled={isGenerating}
-                            >
-                              <Sparkles className="mr-1 h-4 w-4" /> {isGenerating ? "Refining..." : "Refine with AI"}
-                            </Button>
-                          </div>
-                          <ul className="space-y-2">
-                            {exp.bullets.map((bullet, bIdx) => (
-                              <li key={bIdx} className="text-sm flex gap-2">
-                                <span className="text-accent">•</span> {bullet}
-                              </li>
-                            ))}
-                            {exp.bullets.length === 0 && <p className="text-xs text-muted-foreground italic">No bullet points yet. Use AI to refine your description into ATS-ready bullets.</p>}
-                          </ul>
-                        </div>
                       </div>
                     ))}
                     <Button 
                       variant="outline" 
                       className="w-full border-dashed"
-                      onClick={() => updateCV("experience", [...cvData.experience, { id: Date.now(), title: "", company: "", duration: "", description: "", bullets: [] }])}
+                      onClick={() => updateCV("experience", [...cvData.experience, { id: Date.now(), title: "", company: "", duration: "", description: "" }])}
                     >
                       + Add Experience
                     </Button>
@@ -339,12 +234,7 @@ export default function BuilderPage() {
 
                 {currentStep === 4 && (
                   <div className="space-y-6 animate-in fade-in duration-500">
-                    <div className="flex justify-between items-center">
-                      <p className="font-bold">Technical & Professional Skills</p>
-                      <Button variant="outline" size="sm" onClick={handleSuggestSkills} disabled={isGenerating}>
-                        <Sparkles className="mr-1 h-4 w-4" /> Suggest Skills
-                      </Button>
-                    </div>
+                    <p className="font-bold">Technical & Professional Skills</p>
                     <div className="flex flex-wrap gap-2 min-h-[100px] p-4 border rounded-xl bg-muted/20">
                       {cvData.skills.map(skill => (
                         <div key={skill} className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm flex items-center gap-2">
@@ -408,13 +298,110 @@ export default function BuilderPage() {
                         <FileText className="mr-2 h-5 w-5" /> Export as DOCX
                       </Button>
                     </div>
+
+                    <div className="text-center text-sm text-muted-foreground">
+                      Save your PDF as <span className="font-semibold">FirstName_LastName_CV.pdf</span>{" "}
+                      (example: <span className="font-semibold">Saurabh_Verma_CV.pdf</span>). Avoid spaces and symbols.
+                    </div>
+
+                    <div className="flex justify-center">
+                      <Button asChild variant="outline" className="border-primary">
+                        <Link href="/templates">Download DOCX Templates</Link>
+                      </Button>
+                    </div>
                   </div>
                 )}
 
-                {(currentStep === 3 || currentStep === 5) && (
+                {currentStep === 3 && (
                   <div className="py-20 text-center space-y-4">
-                    <p className="text-muted-foreground">Education and Languages sections can be added here following the same pattern.</p>
+                    <p className="text-muted-foreground">
+                      Education & Certifications section can be added here following the same pattern.
+                    </p>
                     <Button onClick={nextStep}>Continue to Next Section</Button>
+                  </div>
+                )}
+
+                {currentStep === 5 && (
+                  <div className="space-y-8 animate-in fade-in duration-500">
+                    <div className="space-y-4">
+                      <p className="font-bold">Languages (CEFR)</p>
+                      <div className="space-y-4">
+                        {cvData.languages.map((lang, idx) => (
+                          <div key={lang.id} className="grid md:grid-cols-[1fr_140px_40px] gap-3 items-end">
+                            <div className="space-y-2">
+                              <Label>Language</Label>
+                              <Input
+                                value={lang.name}
+                                placeholder="English / German / Hindi"
+                                onChange={(e) => {
+                                  const next = [...cvData.languages];
+                                  next[idx] = { ...lang, name: e.target.value };
+                                  updateCV("languages", next);
+                                }}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Level</Label>
+                              <select
+                                className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                value={lang.level}
+                                onChange={(e) => {
+                                  const next = [...cvData.languages];
+                                  next[idx] = { ...lang, level: e.target.value };
+                                  updateCV("languages", next);
+                                }}
+                              >
+                                {["A1", "A2", "B1", "B2", "C1", "C2"].map((lvl) => (
+                                  <option key={lvl} value={lvl}>
+                                    {lvl}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-muted-foreground hover:text-red-500"
+                              onClick={() => {
+                                const next = cvData.languages.filter((l) => l.id !== lang.id);
+                                updateCV("languages", next.length === 0 ? [{ id: Date.now(), name: "", level: "A1" }] : next);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+
+                      <Button
+                        variant="outline"
+                        className="w-full border-dashed"
+                        onClick={() =>
+                          updateCV("languages", [
+                            ...cvData.languages,
+                            { id: Date.now(), name: "", level: "A1" },
+                          ])
+                        }
+                      >
+                        + Add Language
+                      </Button>
+                    </div>
+
+                    <Card className="bg-white border shadow-sm">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-bold flex items-center gap-2">
+                          <Info className="h-4 w-4" /> Support
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <p className="text-sm text-muted-foreground">
+                          Want to support this project? Buy me a coffee.
+                        </p>
+                        <Button asChild className="bg-accent hover:bg-accent/90 text-white">
+                          <Link href="/buy-me-coffee">Buy me a coffee</Link>
+                        </Button>
+                      </CardContent>
+                    </Card>
                   </div>
                 )}
               </CardContent>
@@ -479,8 +466,12 @@ export default function BuilderPage() {
                   <p>{exp.duration}</p>
                 </div>
                 <ul className="list-disc list-inside text-sm space-y-1">
-                  {exp.bullets.map((b, i) => <li key={i}>{b}</li>)}
-                  {exp.bullets.length === 0 && <li>{exp.description}</li>}
+                  {exp.description
+                    .split("\n")
+                    .map((line) => line.trim())
+                    .filter(Boolean)
+                    .map((line, i) => <li key={i}>{line}</li>)}
+                  {exp.description.trim().length === 0 && <li>Experience details go here...</li>}
                 </ul>
               </div>
             ))}
