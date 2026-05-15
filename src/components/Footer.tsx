@@ -1,8 +1,16 @@
+"use client";
 
 import Link from "next/link";
 import { FileText, Github, Linkedin, Mail } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export function Footer() {
+  const [year, setYear] = useState<number | null>(null);
+
+  useEffect(() => {
+    setYear(new Date().getFullYear());
+  }, []);
+
   return (
     <footer className="border-t bg-muted/30 no-print">
       <div className="container mx-auto px-4 md:px-6 py-12">
@@ -65,7 +73,7 @@ export function Footer() {
         </div>
         
         <div className="mt-12 pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} DeutschCV. All rights reserved.</p>
+          <p>© {year || '...'} DeutschCV. All rights reserved.</p>
           <div className="flex gap-6">
             <p>Made with precision for the German job market.</p>
           </div>

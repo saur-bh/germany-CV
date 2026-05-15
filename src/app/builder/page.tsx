@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -15,12 +14,12 @@ import {
   Download,
   AlertCircle,
   FileText,
-  Save,
   Trash2,
-  Sparkles
+  Sparkles,
+  Info
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -47,10 +46,10 @@ export default function BuilderPage() {
   const [cvData, setCvData] = useState({
     personal: { fullName: "", email: "", phone: "", address: "", linkedin: "", workAuth: "" },
     summary: "",
-    experience: [{ id: Date.now(), title: "", company: "", duration: "", description: "", bullets: [] as string[] }],
-    education: [{ id: Date.now(), degree: "", school: "", year: "" }],
+    experience: [{ id: 1, title: "", company: "", duration: "", description: "", bullets: [] as string[] }],
+    education: [{ id: 1, degree: "", school: "", year: "" }],
     skills: [] as string[],
-    languages: [{ id: Date.now(), name: "", level: "A1" }],
+    languages: [{ id: 1, name: "", level: "A1" }],
   });
 
   const [isGenerating, setIsGenerating] = useState(false);
@@ -412,7 +411,6 @@ export default function BuilderPage() {
                   </div>
                 )}
 
-                {/* Placeholder for other steps for brevity in this response */}
                 {(currentStep === 3 || currentStep === 5) && (
                   <div className="py-20 text-center space-y-4">
                     <p className="text-muted-foreground">Education and Languages sections can be added here following the same pattern.</p>
