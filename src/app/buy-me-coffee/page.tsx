@@ -62,7 +62,7 @@ export default function BuyMeCoffeePage() {
                 ⚠️ Please have your current CV open and ready to share on screen at the very start of the meeting.
               </p>
             </div>
-          </div>
+          </CardContent>
         </Card>
       </div>
 

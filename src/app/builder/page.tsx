@@ -17,7 +17,8 @@ import {
   FileText,
   Trash2,
   Info,
-  Eye
+  Eye,
+  ShieldCheck
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -95,13 +96,12 @@ export default function BuilderPage() {
 
   useEffect(() => {
     try {
-      window.localStorage.setItem("ai_mode", aiMode);
       window.sessionStorage.setItem("deepseek_key", deepseekKey);
     } catch {}
-  }, [aiMode, deepseekKey]);
+  }, [deepseekKey]);
 
   const callAI = async (
-    task: "profile_summary" | "skills" | "experience_bullets",
+    task: "profile_summary" | "skills" | "experience_bullets" | "parse_resume",
     input: Record<string, unknown>
   ) => {
     const response = await fetch("/api/ai/deepseek", {
@@ -276,6 +276,9 @@ export default function BuilderPage() {
               <Card className="shadow-xl border-none bg-white/70 backdrop-blur-xl rounded-[2rem] overflow-hidden">
                 <div className="p-1 bg-gradient-to-r from-primary via-accent to-primary animate-gradient-x" />
                 <CardContent className="p-8 md:p-12">
+                  <div className="flex justify-between items-center mb-8">
+                    <h2 className="text-2xl font-bold font-headline">{steps[currentStep].title}</h2>
+                    <div className="text-sm font-medium text-muted-foreground">
                       {Math.round(progress)}% Complete
                     </div>
                   </div>

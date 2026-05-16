@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+// @ts-ignore
 import pdf from "pdf-parse";
 import mammoth from "mammoth";
 
