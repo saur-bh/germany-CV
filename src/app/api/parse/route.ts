@@ -13,11 +13,14 @@ export async function POST(request: Request) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
+    console.log(`Parsing file: ${file.name}, type: ${file.type}, size: ${file.size} bytes`);
     let text = "";
 
     if (file.type === "application/pdf") {
+      console.log("Starting PDF extraction...");
       const data = await pdf(buffer);
       text = data.text;
+      console.log(`PDF extraction complete. Text length: ${text.length}`);
     } else if (
       file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
       file.name.endsWith(".docx")

@@ -111,7 +111,14 @@ export default function BuilderPage() {
 
   useEffect(() => {
     try {
-      window.sessionStorage.setItem("deepseek_key", deepseekKey);
+      const savedKey = window.localStorage.getItem("deepseek_key");
+      if (savedKey) setDeepseekKey(savedKey);
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem("deepseek_key", deepseekKey);
     } catch {}
   }, [deepseekKey]);
 
@@ -158,13 +165,17 @@ export default function BuilderPage() {
       });
 
       if (!parseRes.ok) {
-        throw new Error("Failed to extract text from file");
+        const err = await parseRes.json().catch(() => ({ error: "Unknown error" }));
+        console.error("Parse API failed:", err);
+        throw new Error(err.error || "Failed to extract text from file");
       }
 
       const { text: resumeText } = await parseRes.json();
+      console.log("Extracted text length:", resumeText?.length);
 
-      if (!resumeText) {
-        throw new Error("No text found in resume");
+      if (!resumeText || resumeText.length < 10) {
+        console.error("Insufficient text extracted:", resumeText);
+        throw new Error("Could not find enough text in your resume. Please try a different file.");
       }
 
       // 2. Call AI to parse resume
@@ -1145,12 +1156,25 @@ export default function BuilderPage() {
                       <p className="text-[10px] text-muted-foreground uppercase">Provide your DeepSeek API key to enable AI features (Summary, Skills, Resume Parsing).</p>
                       <div className="space-y-2">
                         <Label className="text-[10px] uppercase text-muted-foreground">DeepSeek API Key</Label>
-                        <Input
-                          value={deepseekKey}
-                          placeholder="sk-..."
-                          className="h-8 text-xs rounded-lg"
-                          onChange={(e) => setDeepseekKey(e.target.value)}
-                        />
+                        <div className="flex gap-2">
+                          <Input
+                            type="password"
+                            value={deepseekKey}
+                            placeholder="sk-..."
+                            className="h-8 text-xs rounded-lg"
+                            onChange={(e) => setDeepseekKey(e.target.value)}
+                          />
+                          <Button 
+                            variant="secondary" 
+                            size="sm" 
+                            className="h-8 text-[10px] uppercase font-bold"
+                            onClick={() => {
+                              toast({ title: "Settings Saved", description: "Your API key has been stored locally." });
+                            }}
+                          >
+                            Save
+                          </Button>
+                        </div>
                       </div>
                       <p className="text-[10px] leading-relaxed text-muted-foreground">
                         Get your key at <a href="https://platform.deepseek.com/" target="_blank" className="text-accent underline">platform.deepseek.com</a>.
