@@ -119,7 +119,7 @@ export default function SessionsPage() {
           </div>
           <CardContent className="p-8 flex-grow space-y-6">
             <p className="text-muted-foreground">
-              Want a deep dive into your profile? Book a private 30-minute session with <b>Saurabh Verma</b> to perfect your application for specific German companies.
+              Want a deep dive into your profile? Book a private 60-minute session with <b>Saurabh Verma</b> to perfect your application for specific German companies.
             </p>
             <ul className="space-y-3">
               {[
