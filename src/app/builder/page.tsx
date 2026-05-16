@@ -43,6 +43,8 @@ const steps = [
 ];
 
 export default function BuilderPage() {
+  const [user, setUser] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [cvData, setCvData] = useState({
@@ -93,6 +95,18 @@ export default function BuilderPage() {
         setDeepseekKey(savedKey);
       }
     } catch {}
+  }, []);
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
+    if (supabase) {
+      supabase.auth.getUser().then(({ data }) => {
+        setUser(data.user);
+        setAuthLoading(false);
+      });
+    } else {
+      setAuthLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -228,6 +242,48 @@ export default function BuilderPage() {
       setIsParsing(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f8fafc]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center px-4">
+        <Card className="max-w-md w-full border-none shadow-2xl rounded-[2.5rem] overflow-hidden">
+          <div className="h-2 bg-gradient-to-r from-primary to-accent" />
+          <CardContent className="p-12 text-center space-y-8">
+            <div className="bg-primary/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto">
+              <User className="h-10 w-10 text-primary" />
+            </div>
+            <div className="space-y-3">
+              <h1 className="text-3xl font-bold font-headline">Login Required</h1>
+              <p className="text-muted-foreground leading-relaxed">
+                To build your professional CV and save your progress, you need to be part of our community.
+              </p>
+            </div>
+            <div className="flex flex-col gap-4">
+              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-white font-bold h-14 rounded-2xl">
+                <Link href="/login">Login to My Account</Link>
+              </Button>
+              <Button asChild variant="ghost" className="text-muted-foreground hover:text-primary">
+                <Link href="/signup">Don't have an account? Sign up</Link>
+              </Button>
+            </div>
+            <div className="pt-6 border-t">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">
+                Trusted by 2,400+ international professionals
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#f8fafc] min-h-screen pb-20">
