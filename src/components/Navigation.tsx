@@ -11,8 +11,8 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 const navItems = [
   { name: "CV Guide", href: "/guide" },
-  { name: "Templates", href: "/templates" },
   { name: "Examples", href: "/examples" },
+  { name: "Sessions", href: "/sessions" },
   { name: "Builder", href: "/builder" },
 ];
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { 
@@ -16,7 +16,8 @@ import {
   AlertCircle,
   FileText,
   Trash2,
-  Info
+  Info,
+  Eye
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,14 +25,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+import { CVPreview } from "./CVPreview";
 
 const steps = [
   { id: "personal", title: "Personal Details", icon: User },
+  { id: "chancenkarte", title: "Chancenkarte & Availability", icon: Info },
   { id: "summary", title: "Profile Summary", icon: FileText },
   { id: "experience", title: "Professional Experience", icon: Briefcase },
   { id: "education", title: "Education & Certificates", icon: GraduationCap },
   { id: "skills", title: "Technical Skills", icon: Cpu },
   { id: "languages", title: "Languages", icon: Globe },
+  { id: "support", title: "Support (Optional)", icon: Info },
   { id: "final", title: "Checklist & Review", icon: CheckCircle },
 ];
 
@@ -39,10 +44,27 @@ export default function BuilderPage() {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [cvData, setCvData] = useState({
-    personal: { fullName: "", email: "", phone: "", address: "", linkedin: "", workAuth: "" },
+    personal: {
+      fullName: "",
+      email: "",
+      phone: "",
+      address: "",
+      linkedin: "",
+      workAuth: "",
+      dob: "",
+      nationality: "",
+    },
+    chance: {
+      currentCity: "",
+      targetCity: "",
+      availability: "",
+      visaStatus: "",
+      template: "one-page" as "one-page" | "two-page",
+    },
+    targetRole: "",
     summary: "",
-    experience: [{ id: 1, title: "", company: "", duration: "", description: "" }],
-    education: [{ id: 1, degree: "", school: "", year: "" }],
+    experience: [{ id: 1, title: "", company: "", location: "", duration: "", description: "" }],
+    education: [{ id: 1, degree: "", school: "", location: "", year: "" }],
     skills: [] as string[],
     languages: [{ id: 1, name: "", level: "A1" }],
   });
@@ -55,41 +77,146 @@ export default function BuilderPage() {
   const prevStep = () => currentStep > 0 && setCurrentStep(currentStep - 1);
 
   const progress = ((currentStep + 1) / steps.length) * 100;
+  const stepId = steps[currentStep]?.id;
+
+  const [aiMode, setAiMode] = useState<"my" | "own">("own");
+  const [deepseekKey, setDeepseekKey] = useState("");
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
+
+  useEffect(() => {
+    try {
+      const savedMode = window.localStorage.getItem("ai_mode");
+      const savedKey = window.sessionStorage.getItem("deepseek_key");
+      if (savedMode === "my" || savedMode === "own") {
+        setAiMode(savedMode);
+      }
+      if (typeof savedKey === "string") {
+        setDeepseekKey(savedKey);
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem("ai_mode", aiMode);
+      window.sessionStorage.setItem("deepseek_key", deepseekKey);
+    } catch {}
+  }, [aiMode, deepseekKey]);
+
+  const callAI = async (
+    task: "profile_summary" | "skills" | "experience_bullets",
+    input: Record<string, unknown>
+  ) => {
+    const response = await fetch("/api/ai/deepseek", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        task,
+        input,
+        useServerKey: aiMode === "my",
+        userApiKey: aiMode === "own" ? deepseekKey : undefined,
+      }),
+    });
+
+    const json = (await response.json().catch(() => null)) as
+      | { text?: string; error?: string }
+      | null;
+
+    if (!response.ok) {
+      const msg = json?.error ?? "AI request failed";
+      if (response.status === 402) {
+        toast({
+          title: "Payment required",
+          description: "Pay ₹99 to use the server AI key, or use your own key.",
+          variant: "destructive",
+        });
+      } else {
+        toast({ title: "AI error", description: msg, variant: "destructive" });
+      }
+      return null;
+    }
+
+    return json?.text ?? null;
+  };
 
   return (
-    <div className="bg-muted/30 min-h-screen pb-20">
+    <div className="bg-[#f8fafc] min-h-screen pb-20">
       <div className="container mx-auto px-4 md:px-6 pt-10">
-        <div className="max-w-4xl mx-auto space-y-8">
-          {/* Header & Progress */}
-          <div className="space-y-4">
-            <div className="flex justify-between items-end">
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
+            <div className="mb-10 space-y-2 flex justify-between items-end">
               <div>
-                <h1 className="text-3xl font-bold font-headline">{steps[currentStep].title}</h1>
-                <p className="text-muted-foreground">Step {currentStep + 1} of {steps.length}</p>
+                <h1 className="text-4xl font-bold font-headline tracking-tight text-primary">
+                  Build Your <span className="text-accent">Germany CV</span>
+                </h1>
+                <p className="text-muted-foreground text-lg">
+                  Follow our guided steps to create a recruiter-ready application.
+                </p>
               </div>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={prevStep} disabled={currentStep === 0}>
-                  <ChevronLeft className="mr-1 h-4 w-4" /> Back
-                </Button>
-                {currentStep < steps.length - 1 ? (
-                  <Button onClick={nextStep}>
-                    Next Step <ChevronRight className="ml-1 h-4 w-4" />
-                  </Button>
-                ) : (
-                  <Button className="bg-green-600 hover:bg-green-700" onClick={() => window.print()}>
-                    <Download className="mr-1 h-4 w-4" /> Export CV
-                  </Button>
-                )}
-              </div>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowPreview(!showPreview)}
+                className="rounded-xl border-primary text-primary hover:bg-primary/5"
+              >
+                <Eye className="mr-2 h-4 w-4" /> {showPreview ? "Hide Preview" : "Live Preview"}
+              </Button>
             </div>
-            <Progress value={progress} className="h-2" />
-          </div>
 
-          <div className="grid lg:grid-cols-[1fr_300px] gap-8">
-            {/* Step Form Area */}
-            <Card className="shadow-sm border-none bg-white">
-              <CardContent className="p-8">
-                {currentStep === 0 && (
+          <div className={cn(
+            "grid gap-8 items-start transition-all duration-500",
+            showPreview ? "lg:grid-cols-[240px_1fr_1fr]" : "lg:grid-cols-[280px_1fr_320px]"
+          )}>
+            {/* Step Indicator Sidebar (Desktop) */}
+            <aside className="hidden lg:block sticky top-28 space-y-4">
+              <div className="bg-white/50 backdrop-blur-md border border-white/20 rounded-[2rem] p-6 shadow-sm">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-6 px-2">Progress</p>
+                <nav className="space-y-1">
+                  {steps.map((step, idx) => {
+                    const isCompleted = idx < currentStep;
+                    const isCurrent = idx === currentStep;
+                    const Icon = step.icon;
+
+                    return (
+                      <button
+                        key={step.id}
+                        onClick={() => setCurrentStep(idx)}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all duration-200 group",
+                          isCurrent 
+                            ? "bg-primary text-primary-foreground shadow-lg scale-[1.02]" 
+                            : isCompleted 
+                              ? "text-green-600 hover:bg-green-50" 
+                              : "text-muted-foreground hover:bg-muted"
+                        )}
+                      >
+                        <div className={cn(
+                          "p-1.5 rounded-lg transition-colors",
+                          isCurrent ? "bg-white/20" : isCompleted ? "bg-green-100" : "bg-muted"
+                        )}>
+                          <Icon className="h-4 w-4" />
+                        </div>
+                        <span className="truncate">{step.title}</span>
+                        {isCompleted && <CheckCircle className="h-4 w-4 ml-auto" />}
+                      </button>
+                    );
+                  })}
+                </nav>
+              </div>
+            </aside>
+
+            {/* Main Form Area */}
+            <div className="space-y-6">
+              <Card className="shadow-xl border-none bg-white/70 backdrop-blur-xl rounded-[2rem] overflow-hidden">
+                <div className="p-1 bg-gradient-to-r from-primary via-accent to-primary animate-gradient-x" />
+                <CardContent className="p-8 md:p-12">
+                  <div className="flex justify-between items-center mb-8">
+                    <h2 className="text-2xl font-bold font-headline">{steps[currentStep].title}</h2>
+                    <div className="text-sm font-medium text-muted-foreground">
+                      {Math.round(progress)}% Complete
+                    </div>
+                  </div>
+                {stepId === "personal" && (
                   <div className="space-y-6 animate-in fade-in duration-500">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
@@ -126,6 +253,17 @@ export default function BuilderPage() {
                           onChange={(e) => updateCV("personal", { ...cvData.personal, address: e.target.value })} 
                         />
                       </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="linkedin">LinkedIn</Label>
+                        <Input
+                          id="linkedin"
+                          value={cvData.personal.linkedin}
+                          placeholder="https://linkedin.com/in/yourname"
+                          onChange={(e) =>
+                            updateCV("personal", { ...cvData.personal, linkedin: e.target.value })
+                          }
+                        />
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="workAuth">Work Authorization & Relocation Status</Label>
@@ -136,12 +274,172 @@ export default function BuilderPage() {
                         onChange={(e) => updateCV("personal", { ...cvData.personal, workAuth: e.target.value })} 
                       />
                     </div>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="dob">Date of Birth (Optional)</Label>
+                        <Input
+                          id="dob"
+                          value={cvData.personal.dob}
+                          placeholder="DD/MM/YYYY"
+                          onChange={(e) =>
+                            updateCV("personal", { ...cvData.personal, dob: e.target.value })
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="nationality">Nationality (Optional)</Label>
+                        <Input
+                          id="nationality"
+                          value={cvData.personal.nationality}
+                          placeholder="Indian"
+                          onChange={(e) =>
+                            updateCV("personal", { ...cvData.personal, nationality: e.target.value })
+                          }
+                        />
+                      </div>
+                    </div>
                   </div>
                 )}
 
-                {currentStep === 1 && (
+                {stepId === "chancenkarte" && (
+                  <div className="space-y-8 animate-in fade-in duration-500">
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="targetRole">Target Role</Label>
+                        <Input
+                          id="targetRole"
+                          value={cvData.targetRole}
+                          placeholder="e.g. QA Automation Engineer"
+                          onChange={(e) => updateCV("targetRole", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>CV Template</Label>
+                        <div className="flex flex-col gap-2 text-sm">
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              name="template"
+                              checked={cvData.chance.template === "one-page"}
+                              onChange={() =>
+                                updateCV("chance", { ...cvData.chance, template: "one-page" })
+                              }
+                            />
+                            <span>One-page (single column)</span>
+                          </label>
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              name="template"
+                              checked={cvData.chance.template === "two-page"}
+                              onChange={() =>
+                                updateCV("chance", { ...cvData.chance, template: "two-page" })
+                              }
+                            />
+                            <span>Two-page (sidebar + photo)</span>
+                          </label>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="visaStatus">Visa / Chancenkarte Status</Label>
+                        <Input
+                          id="visaStatus"
+                          value={cvData.chance.visaStatus}
+                          placeholder="e.g. Chancenkarte approved / applied / planning"
+                          onChange={(e) =>
+                            updateCV("chance", { ...cvData.chance, visaStatus: e.target.value })
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="currentCity">Current City</Label>
+                        <Input
+                          id="currentCity"
+                          value={cvData.chance.currentCity}
+                          placeholder="e.g. Pune, India"
+                          onChange={(e) =>
+                            updateCV("chance", { ...cvData.chance, currentCity: e.target.value })
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="targetCity">Target City (Germany)</Label>
+                        <Input
+                          id="targetCity"
+                          value={cvData.chance.targetCity}
+                          placeholder="e.g. Berlin / Munich / Any"
+                          onChange={(e) =>
+                            updateCV("chance", { ...cvData.chance, targetCity: e.target.value })
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="availability">Availability / Relocation Timeline</Label>
+                      <Input
+                        id="availability"
+                        value={cvData.chance.availability}
+                        placeholder="e.g. Can relocate in Aug 2026"
+                        onChange={(e) =>
+                          updateCV("chance", { ...cvData.chance, availability: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Photo (Optional)</Label>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const url = URL.createObjectURL(file);
+                          setPhotoUrl(url);
+                        }}
+                      />
+                    </div>
+                    <div className="p-4 bg-accent/5 rounded-lg border border-accent/20 flex gap-3">
+                      <Info className="h-5 w-5 text-accent shrink-0" />
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        Keep your work authorization crystal clear. German recruiters reject CVs when visa/work status is missing or confusing.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {stepId === "summary" && (
                   <div className="space-y-6 animate-in fade-in duration-500">
-                    <Label htmlFor="summary">Professional Summary</Label>
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <Label htmlFor="summary">Professional Summary</Label>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={async () => {
+                            const text = await callAI("profile_summary", {
+                              targetRole: cvData.targetRole,
+                              workAuth: cvData.personal.workAuth,
+                              language: cvData.languages
+                                .map((l) => `${l.name || "Language"} ${l.level}`)
+                                .join(", "),
+                              experience: cvData.experience
+                                .map((e) => `${e.title} at ${e.company}: ${e.description}`)
+                                .join("\n"),
+                              skills: cvData.skills.join(", "),
+                            });
+                            if (text) {
+                              updateCV("summary", text);
+                              toast({ title: "Summary generated" });
+                            }
+                          }}
+                        >
+                          Generate with AI
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Use DeepSeek. Choose “Use my key (₹99)” or paste your own DeepSeek API key in the AI settings.
+                      </p>
+                    </div>
                     <Textarea 
                       id="summary" 
                       className="min-h-[200px]"
@@ -158,7 +456,7 @@ export default function BuilderPage() {
                   </div>
                 )}
 
-                {currentStep === 2 && (
+                {stepId === "experience" && (
                   <div className="space-y-8 animate-in fade-in duration-500">
                     {cvData.experience.map((exp, idx) => (
                       <div key={exp.id} className="p-6 border rounded-xl space-y-4 relative group">
@@ -197,6 +495,18 @@ export default function BuilderPage() {
                             />
                           </div>
                           <div className="space-y-2">
+                            <Label>Company Location</Label>
+                            <Input
+                              value={exp.location}
+                              placeholder="City (optional), Country"
+                              onChange={(e) => {
+                                const newExp = [...cvData.experience];
+                                newExp[idx].location = e.target.value;
+                                updateCV("experience", newExp);
+                              }}
+                            />
+                          </div>
+                          <div className="space-y-2">
                             <Label>Duration (e.g. 2021 - Present)</Label>
                             <Input 
                               value={exp.duration} 
@@ -220,21 +530,167 @@ export default function BuilderPage() {
                             }}
                           />
                         </div>
+                        <div className="flex items-center justify-between gap-3 pt-2">
+                          <p className="text-xs text-muted-foreground">
+                            Tip: 4–6 bullets max. Add metrics (%/time/€) where possible.
+                          </p>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={async () => {
+                              const text = await callAI("experience_bullets", {
+                                experienceText: exp.description,
+                                jobTitle: exp.title,
+                                company: exp.company,
+                                location: exp.location,
+                                duration: exp.duration,
+                              });
+                              if (text) {
+                                const newExp = [...cvData.experience];
+                                newExp[idx].description = text
+                                  .split("\n")
+                                  .map((l) => l.replace(/^[-•\s]+/, "").trim())
+                                  .filter(Boolean)
+                                  .join("\n");
+                                updateCV("experience", newExp);
+                                toast({ title: "Bullet points refined" });
+                              }
+                            }}
+                          >
+                            Refine with AI
+                          </Button>
+                        </div>
                       </div>
                     ))}
                     <Button 
                       variant="outline" 
                       className="w-full border-dashed"
-                      onClick={() => updateCV("experience", [...cvData.experience, { id: Date.now(), title: "", company: "", duration: "", description: "" }])}
+                      onClick={() =>
+                        updateCV("experience", [
+                          ...cvData.experience,
+                          { id: Date.now(), title: "", company: "", location: "", duration: "", description: "" },
+                        ])
+                      }
                     >
                       + Add Experience
                     </Button>
                   </div>
                 )}
 
-                {currentStep === 4 && (
+                {stepId === "education" && (
+                  <div className="space-y-8 animate-in fade-in duration-500">
+                    {cvData.education.map((ed, idx) => (
+                      <div key={ed.id} className="p-6 border rounded-xl space-y-4 relative group">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute top-2 right-2 text-muted-foreground hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => {
+                            const next = cvData.education.filter((e) => e.id !== ed.id);
+                            updateCV(
+                              "education",
+                              next.length
+                                ? next
+                                : [{ id: Date.now(), degree: "", school: "", location: "", year: "" }]
+                            );
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Degree / Certificate</Label>
+                            <Input
+                              value={ed.degree}
+                              placeholder="BTech, MBA, ISTQB, etc."
+                              onChange={(e) => {
+                                const next = [...cvData.education];
+                                next[idx].degree = e.target.value;
+                                updateCV("education", next);
+                              }}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Institute / University</Label>
+                            <Input
+                              value={ed.school}
+                              placeholder="University name"
+                              onChange={(e) => {
+                                const next = [...cvData.education];
+                                next[idx].school = e.target.value;
+                                updateCV("education", next);
+                              }}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Location</Label>
+                            <Input
+                              value={ed.location}
+                              placeholder="City, Country"
+                              onChange={(e) => {
+                                const next = [...cvData.education];
+                                next[idx].location = e.target.value;
+                                updateCV("education", next);
+                              }}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Year</Label>
+                            <Input
+                              value={ed.year}
+                              placeholder="2019"
+                              onChange={(e) => {
+                                const next = [...cvData.education];
+                                next[idx].year = e.target.value;
+                                updateCV("education", next);
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    <Button
+                      variant="outline"
+                      className="w-full border-dashed"
+                      onClick={() =>
+                        updateCV("education", [
+                          ...cvData.education,
+                          { id: Date.now(), degree: "", school: "", location: "", year: "" },
+                        ])
+                      }
+                    >
+                      + Add Education / Certificate
+                    </Button>
+                  </div>
+                )}
+
+                {stepId === "skills" && (
                   <div className="space-y-6 animate-in fade-in duration-500">
-                    <p className="font-bold">Technical & Professional Skills</p>
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="font-bold">Technical & Professional Skills</p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          const text = await callAI("skills", {
+                            targetRole: cvData.targetRole,
+                            experience: cvData.experience
+                              .map((e) => `${e.title} at ${e.company}: ${e.description}`)
+                              .join("\n"),
+                          });
+                          if (!text) return;
+                          const nextSkills = text
+                            .split(/[\n,•]/g)
+                            .map((s) => s.trim())
+                            .filter(Boolean)
+                            .map((s) => s.replace(/^[-•\s]+/, "").trim());
+                          updateCV("skills", Array.from(new Set([...cvData.skills, ...nextSkills])));
+                          toast({ title: "Skills suggested" });
+                        }}
+                      >
+                        Suggest with AI
+                      </Button>
+                    </div>
                     <div className="flex flex-wrap gap-2 min-h-[100px] p-4 border rounded-xl bg-muted/20">
                       {cvData.skills.map(skill => (
                         <div key={skill} className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm flex items-center gap-2">
@@ -261,67 +717,7 @@ export default function BuilderPage() {
                   </div>
                 )}
 
-                {currentStep === 6 && (
-                  <div className="space-y-8 animate-in fade-in duration-500">
-                    <div className="text-center space-y-2">
-                      <div className="inline-flex items-center justify-center p-4 bg-green-100 rounded-full text-green-600 mb-2">
-                        <CheckCircle className="h-10 w-10" />
-                      </div>
-                      <h2 className="text-2xl font-bold">Ready to Export!</h2>
-                      <p className="text-muted-foreground">Perform one final check before downloading your Germany CV.</p>
-                    </div>
-
-                    <div className="grid gap-4">
-                      {[
-                        "Standard A4 single column layout (No complex tables)",
-                        "Professional Summary is 3-5 sentences maximum",
-                        "Experience lists quantifiable results with action verbs",
-                        "Language levels use CEFR (A1-C2) standards",
-                        "Work permit status is explicitly mentioned",
-                        "No skill bars or vague graphic indicators",
-                        "Contact details include LinkedIn and location"
-                      ].map((check, i) => (
-                        <div key={i} className="flex items-start gap-3 p-4 border rounded-lg bg-white">
-                          <div className="mt-0.5">
-                            <input type="checkbox" className="h-5 w-5 rounded border-gray-300 text-accent focus:ring-accent" defaultChecked />
-                          </div>
-                          <span className="text-sm">{check}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-                      <Button className="bg-accent hover:bg-accent/90 text-white font-bold h-12 px-8" onClick={() => window.print()}>
-                        <Download className="mr-2 h-5 w-5" /> Download ATS PDF
-                      </Button>
-                      <Button variant="outline" className="h-12 px-8 border-primary" onClick={() => toast({ title: "DOCX Export", description: "This feature is coming soon in the premium version." })}>
-                        <FileText className="mr-2 h-5 w-5" /> Export as DOCX
-                      </Button>
-                    </div>
-
-                    <div className="text-center text-sm text-muted-foreground">
-                      Save your PDF as <span className="font-semibold">FirstName_LastName_CV.pdf</span>{" "}
-                      (example: <span className="font-semibold">Saurabh_Verma_CV.pdf</span>). Avoid spaces and symbols.
-                    </div>
-
-                    <div className="flex justify-center">
-                      <Button asChild variant="outline" className="border-primary">
-                        <Link href="/templates">Download DOCX Templates</Link>
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                {currentStep === 3 && (
-                  <div className="py-20 text-center space-y-4">
-                    <p className="text-muted-foreground">
-                      Education & Certifications section can be added here following the same pattern.
-                    </p>
-                    <Button onClick={nextStep}>Continue to Next Section</Button>
-                  </div>
-                )}
-
-                {currentStep === 5 && (
+                {stepId === "languages" && (
                   <div className="space-y-8 animate-in fade-in duration-500">
                     <div className="space-y-4">
                       <p className="font-bold">Languages (CEFR)</p>
@@ -386,50 +782,223 @@ export default function BuilderPage() {
                         + Add Language
                       </Button>
                     </div>
-
-                    <Card className="bg-white border shadow-sm">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-bold flex items-center gap-2">
-                          <Info className="h-4 w-4" /> Support
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        <p className="text-sm text-muted-foreground">
-                          Want to support this project? Buy me a coffee.
-                        </p>
-                        <Button asChild className="bg-accent hover:bg-accent/90 text-white">
-                          <Link href="/buy-me-coffee">Buy me a coffee</Link>
-                        </Button>
-                      </CardContent>
-                    </Card>
                   </div>
                 )}
-              </CardContent>
-            </Card>
 
-            {/* Sticky Tips Panel */}
-            <aside className="hidden lg:block space-y-6">
-              <div className="sticky top-28 space-y-6">
-                <Card className="bg-primary text-primary-foreground border-none">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-bold flex items-center gap-2">
-                      <Info className="h-4 w-4" /> Builder Tip
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-xs leading-relaxed opacity-80">
-                    {steps[currentStep].id === 'personal' && "German recruiters expect to see your current location. If you are abroad, mention your relocation timeline and work permit status immediately."}
-                    {steps[currentStep].id === 'summary' && "This is your 6-second hook. Mention your main tech stack, years of experience, and strongest achievement right at the start."}
-                    {steps[currentStep].id === 'experience' && "Use the past tense for previous roles and present tense for current ones. Always start with an action verb (e.g., 'Implemented', 'Reduced', 'Collaborated')."}
-                    {steps[currentStep].id === 'skills' && "Categorize your skills if possible (e.g., Languages, Frameworks, Tools). Avoid generic skills like 'Hardworking' or 'Microsoft Word'."}
-                  </CardContent>
-                </Card>
+                {stepId === "support" && (
+                  <div className="space-y-8 animate-in fade-in duration-500">
+                    <div className="space-y-2">
+                      <h2 className="text-2xl font-bold">Buy me a coffee (optional)</h2>
+                      <p className="text-muted-foreground">
+                        If this helped you, you can support it. You can also skip and finish your CV.
+                      </p>
+                    </div>
 
-                <div className="p-4 border border-dashed rounded-xl bg-accent/5 space-y-2">
-                  <p className="text-xs font-bold text-accent uppercase tracking-widest">ATS Alert</p>
-                  <p className="text-[10px] text-muted-foreground uppercase">Critical Rule:</p>
-                  <p className="text-xs font-medium">Avoid images, graphics, and tables. Our templates handle this automatically, but keep your inputs text-based.</p>
+                    <div className="grid md:grid-cols-2 gap-6 items-start">
+                      <Card className="bg-white border shadow-sm">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-base">Pay ₹99 via UPI</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <img
+                            src="/api/qr"
+                            alt="UPI QR"
+                            className="w-full max-w-[260px] border rounded-lg"
+                          />
+                          <Button asChild className="bg-accent hover:bg-accent/90 text-white w-full">
+                            <Link href="/buy-me-coffee">Open full page</Link>
+                          </Button>
+                        </CardContent>
+                      </Card>
+
+                      <Card className="bg-white border shadow-sm">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-base">AI key usage</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3 text-sm text-muted-foreground">
+                          <p>
+                            If you choose “Use my key”, you need to pay ₹99. If not, paste your own DeepSeek API key in AI settings.
+                          </p>
+                          <div className="flex gap-3">
+                            <Button variant="outline" className="w-full" onClick={nextStep}>
+                              Skip
+                            </Button>
+                            <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90" onClick={nextStep}>
+                              Continue
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                )}
+
+                {stepId === "final" && (
+                  <div className="space-y-8 animate-in fade-in duration-500">
+                    <div className="text-center space-y-2">
+                      <div className="inline-flex items-center justify-center p-4 bg-green-100 rounded-full text-green-600 mb-2">
+                        <CheckCircle className="h-10 w-10" />
+                      </div>
+                      <h2 className="text-2xl font-bold">Ready to Export!</h2>
+                      <p className="text-muted-foreground">Perform one final check before downloading your CV.</p>
+                    </div>
+
+                    <div className="grid gap-4">
+                      {[
+                        cvData.chance.template === "two-page"
+                          ? "Two-page layout matches the template (sidebar + main column)"
+                          : "One-page layout matches the template",
+                        "Professional Summary is 3-5 sentences maximum",
+                        "Experience lists quantifiable results with action verbs",
+                        "Language levels use CEFR (A1-C2) standards",
+                        "Work permit status is explicitly mentioned",
+                        "No skill bars or vague graphic indicators",
+                        "Contact details include LinkedIn and location",
+                      ].map((check, i) => (
+                        <div key={i} className="flex items-start gap-3 p-4 border rounded-lg bg-white">
+                          <div className="mt-0.5">
+                            <input type="checkbox" className="h-5 w-5 rounded border-gray-300 text-accent focus:ring-accent" defaultChecked />
+                          </div>
+                          <span className="text-sm">{check}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+                      <Button className="bg-accent hover:bg-accent/90 text-white font-bold h-12 px-8" onClick={() => window.print()}>
+                        <Download className="mr-2 h-5 w-5" /> Download PDF
+                      </Button>
+                    </div>
+
+                    <div className="text-center text-sm text-muted-foreground">
+                      Save your PDF as <span className="font-semibold">FirstName_LastName_CV.pdf</span>{" "}
+                      (example: <span className="font-semibold">Saurabh_Verma_CV.pdf</span>). Avoid spaces and symbols.
+                    </div>
+
+                    <div className="flex justify-center">
+                      <Button asChild variant="outline" className="border-primary">
+                        <Link href="/guide">Read CV Guide</Link>
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                  {/* Footer Navigation */}
+                  <div className="flex justify-between items-center pt-10 mt-10 border-t">
+                    <Button 
+                      variant="ghost" 
+                      onClick={prevStep} 
+                      disabled={currentStep === 0}
+                      className="px-6 rounded-xl hover:bg-muted"
+                    >
+                      <ChevronLeft className="mr-2 h-4 w-4" /> Previous
+                    </Button>
+                    
+                    {currentStep < steps.length - 1 ? (
+                      <Button 
+                        onClick={nextStep} 
+                        className="px-10 rounded-xl bg-primary hover:bg-primary/90 h-12 text-base font-bold shadow-lg shadow-primary/20 transition-all active:scale-95"
+                      >
+                        Next Step <ChevronRight className="ml-2 h-5 w-5" />
+                      </Button>
+                    ) : (
+                      <Button 
+                        className="px-10 rounded-xl bg-green-600 hover:bg-green-700 h-12 text-base font-bold shadow-lg shadow-green-200" 
+                        onClick={() => window.print()}
+                      >
+                        <Download className="mr-2 h-5 w-5" /> Export CV
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Sticky Panel (Tips or Preview) */}
+            <aside className="hidden lg:block sticky top-28 space-y-6 max-h-[calc(100vh-8rem)] overflow-y-auto no-scrollbar">
+              {showPreview ? (
+                <div className="animate-in slide-in-from-right duration-500">
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Live Preview</p>
+                    <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">Auto-syncing</span>
+                  </div>
+                  <div className="rounded-2xl overflow-hidden shadow-2xl border bg-white scale-[0.7] origin-top">
+                    <CVPreview cvData={cvData} photoUrl={photoUrl} />
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="space-y-6 animate-in slide-in-from-left duration-500">
+                  <Card className="bg-primary text-primary-foreground border-none rounded-2xl shadow-lg">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-bold flex items-center gap-2">
+                        <Info className="h-4 w-4" /> Builder Tip
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-xs leading-relaxed opacity-80">
+                      {steps[currentStep].id === 'personal' && "German recruiters expect to see your current location. If you are abroad, mention your relocation timeline and work permit status immediately."}
+                      {steps[currentStep].id === 'chancenkarte' && "Mention Chancenkarte/visa status clearly. Add your relocation timeline and preferred city to reduce recruiter uncertainty."}
+                      {steps[currentStep].id === 'summary' && "This is your 6-second hook. Mention your main tech stack, years of experience, and strongest achievement right at the start."}
+                      {steps[currentStep].id === 'experience' && "Use the past tense for previous roles and present tense for current ones. Always start with an action verb (e.g., 'Implemented', 'Reduced', 'Collaborated')."}
+                      {steps[currentStep].id === 'skills' && "Categorize your skills if possible (e.g., Languages, Frameworks, Tools). Avoid generic skills like 'Hardworking' or 'Microsoft Word'."}
+                      {steps[currentStep].id === 'languages' && "Be honest about German level. Add CEFR level (A1-C2). German recruiters care about this section."}
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-white border-none rounded-2xl shadow-lg overflow-hidden">
+                    <div className="h-1 bg-accent" />
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-bold flex items-center gap-2">
+                        <Cpu className="h-4 w-4 text-accent" /> AI Assist
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-3 text-sm">
+                        <label className="flex items-center gap-2 cursor-pointer group">
+                          <input
+                            type="radio"
+                            name="aiMode"
+                            checked={aiMode === "my"}
+                            onChange={() => setAiMode("my")}
+                            className="text-accent focus:ring-accent"
+                          />
+                          <span className="group-hover:text-accent transition-colors">Use server key (₹99)</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer group">
+                          <input
+                            type="radio"
+                            name="aiMode"
+                            checked={aiMode === "own"}
+                            onChange={() => setAiMode("own")}
+                            className="text-accent focus:ring-accent"
+                          />
+                          <span className="group-hover:text-accent transition-colors">Use my own key</span>
+                        </label>
+                      </div>
+
+                      {aiMode === "own" && (
+                        <div className="space-y-2 animate-in zoom-in-95 duration-200">
+                          <Label className="text-[10px] uppercase text-muted-foreground">DeepSeek API Key</Label>
+                          <Input
+                            value={deepseekKey}
+                            placeholder="sk-..."
+                            className="h-8 text-xs rounded-lg"
+                            onChange={(e) => setDeepseekKey(e.target.value)}
+                          />
+                        </div>
+                      )}
+
+                      <Button asChild variant="outline" className="w-full border-primary rounded-xl h-10 text-xs font-bold hover:bg-primary hover:text-white transition-all">
+                        <Link href="/buy-me-coffee">Get Server Key Access</Link>
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <div className="p-4 border border-dashed rounded-[1.5rem] bg-accent/5 space-y-2 border-accent/20">
+                    <p className="text-xs font-bold text-accent uppercase tracking-widest">ATS Alert</p>
+                    <p className="text-[10px] text-muted-foreground uppercase">Critical Rule:</p>
+                    <p className="text-xs font-medium leading-tight">Avoid images, graphics, and tables. Our templates handle this automatically.</p>
+                  </div>
+                </div>
+              )}
             </aside>
           </div>
         </div>
@@ -437,69 +1006,8 @@ export default function BuilderPage() {
       
       {/* Hidden CV Preview for Printing */}
       <div className="hidden print:block fixed inset-0 bg-white z-[9999] overflow-auto">
-        <div className="container mx-auto p-12 space-y-8 bg-white max-w-[210mm] min-h-[297mm]">
-          <div className="flex justify-between items-start border-b-2 border-primary pb-6">
-            <div className="space-y-2">
-              <h1 className="text-4xl font-bold font-headline">{cvData.personal.fullName || "Your Name"}</h1>
-              <p className="text-accent font-bold tracking-widest uppercase text-sm">{cvData.experience[0]?.title || "Professional Profile"}</p>
-            </div>
-            <div className="text-right text-sm space-y-1">
-              <p>{cvData.personal.email}</p>
-              <p>{cvData.personal.phone}</p>
-              <p>{cvData.personal.address}</p>
-              <p>{cvData.personal.linkedin}</p>
-              <p className="font-bold text-accent">{cvData.personal.workAuth}</p>
-            </div>
-          </div>
-
-          <section className="space-y-2">
-            <h2 className="text-lg font-bold font-headline uppercase border-b pb-1">Professional Summary</h2>
-            <p className="text-sm leading-relaxed">{cvData.summary || "Summary goes here..."}</p>
-          </section>
-
-          <section className="space-y-4">
-            <h2 className="text-lg font-bold font-headline uppercase border-b pb-1">Professional Experience</h2>
-            {cvData.experience.map(exp => (
-              <div key={exp.id} className="space-y-2">
-                <div className="flex justify-between font-bold text-sm">
-                  <p>{exp.title} | {exp.company}</p>
-                  <p>{exp.duration}</p>
-                </div>
-                <ul className="list-disc list-inside text-sm space-y-1">
-                  {exp.description
-                    .split("\n")
-                    .map((line) => line.trim())
-                    .filter(Boolean)
-                    .map((line, i) => <li key={i}>{line}</li>)}
-                  {exp.description.trim().length === 0 && <li>Experience details go here...</li>}
-                </ul>
-              </div>
-            ))}
-          </section>
-
-          <section className="space-y-2">
-            <h2 className="text-lg font-bold font-headline uppercase border-b pb-1">Education</h2>
-            {cvData.education.map(ed => (
-              <div key={ed.id} className="flex justify-between text-sm">
-                <p><span className="font-bold">{ed.degree}</span>, {ed.school}</p>
-                <p>{ed.year}</p>
-              </div>
-            ))}
-          </section>
-
-          <section className="space-y-2">
-            <h2 className="text-lg font-bold font-headline uppercase border-b pb-1">Technical Skills</h2>
-            <p className="text-sm">{cvData.skills.join(" • ")}</p>
-          </section>
-
-          <section className="space-y-2">
-            <h2 className="text-lg font-bold font-headline uppercase border-b pb-1">Languages</h2>
-            <div className="grid grid-cols-3 gap-4">
-              {cvData.languages.map(l => (
-                <p key={l.id} className="text-sm"><span className="font-bold">{l.name}</span>: {l.level}</p>
-              ))}
-            </div>
-          </section>
+        <div className="container mx-auto p-12 bg-white max-w-[210mm] min-h-[297mm]">
+          <CVPreview cvData={cvData} photoUrl={photoUrl} />
         </div>
       </div>
     </div>

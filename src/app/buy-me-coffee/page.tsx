@@ -9,8 +9,8 @@ export default function BuyMeCoffeePage() {
           Buy me a coffee
         </h1>
         <p className="text-muted-foreground">
-          If this helped you build a Germany-ready CV, you can support the
-          project here.
+          Pay ₹99 to support the project. This covers a <b>Priority 1:1 CV Review session</b> or enables “Use my
+          AI key” for your account (DeepSeek).
         </p>
       </div>
 

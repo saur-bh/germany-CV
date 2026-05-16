@@ -11,12 +11,10 @@ import {
   AlertCircle,
   FileText
 } from "lucide-react";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function LandingPage() {
-  const heroImg = PlaceHolderImages.find(img => img.id === 'hero-image');
 
   return (
     <div className="flex flex-col gap-20 pb-20">
@@ -51,28 +49,20 @@ export default function LandingPage() {
             </div>
             <div className="flex items-center gap-6 pt-4 text-primary-foreground/60 text-sm">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4" /> <span>ATS Compatible</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4" /> <span>PDF & DOCX Exports</span>
+                <CheckCircle2 className="h-4 w-4" /> <span>Professional PDF Exports</span>
               </div>
             </div>
           </div>
           
           <div className="relative">
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-primary-foreground/10 aspect-[4/3] lg:aspect-auto">
-              {heroImg?.imageUrl ? (
-                <Image 
-                  src={heroImg.imageUrl} 
-                  alt="Working in Germany" 
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-muted flex items-center justify-center">
-                  <FileText className="h-12 w-12 text-muted-foreground opacity-20" />
-                </div>
-              )}
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-primary-foreground/10 aspect-[4/3] lg:aspect-auto min-h-[400px]">
+              <Image 
+                src="/hero.png" 
+                alt="Working in Germany" 
+                fill
+                className="object-cover"
+                priority
+              />
             </div>
           </div>
         </div>

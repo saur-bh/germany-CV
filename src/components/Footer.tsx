@@ -25,9 +25,9 @@ export function Footer() {
           <div>
             <h4 className="font-headline font-bold mb-4">Links</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link href="/guide" className="hover:text-accent">Germany CV Guide</Link></li>
-              <li><Link href="/templates" className="hover:text-accent">DOCX Templates</Link></li>
               <li><Link href="/builder" className="hover:text-accent">CV Builder</Link></li>
+              <li><Link href="/guide" className="hover:text-accent">CV Guide</Link></li>
+              <li><Link href="/examples" className="hover:text-accent">Examples</Link></li>
             </ul>
           </div>
 
