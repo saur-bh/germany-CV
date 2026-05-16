@@ -239,6 +239,52 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* 1:1 Consultation Section */}
+      <section className="container mx-auto px-4 md:px-6">
+        <Card className="bg-accent/5 border-accent/20 rounded-[2rem] overflow-hidden">
+          <div className="grid lg:grid-cols-2 gap-8 items-center p-8 md:p-16">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-sm font-bold">
+                <CheckCircle2 className="h-4 w-4" />
+                <span>Premium Support</span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold">1:1 Career Consultation</h2>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                Need a deeper look? I offer personalized sessions to review your CV, optimize your LinkedIn, and prepare you for German interviews.
+              </p>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-accent text-white flex items-center justify-center font-bold">SV</div>
+                  <div>
+                    <p className="font-bold">Saurabh Verma</p>
+                    <p className="text-xs text-muted-foreground">Founder & Career Coach</p>
+                  </div>
+                </div>
+                <Button asChild className="bg-accent hover:bg-accent/90 text-white font-bold h-12 px-8">
+                  <Link href="/sessions">Book a 1:1 Session</Link>
+                </Button>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl p-6 shadow-xl border space-y-4">
+              <h4 className="font-bold">What's included:</h4>
+              <ul className="space-y-3">
+                {[
+                  "Detailed CV & LinkedIn audit",
+                  "German interview mock sessions",
+                  "Strategy for Chancenkarte & job search",
+                  "Direct Q&A for your specific situation"
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3 text-sm">
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </Card>
+      </section>
+
       {/* FAQ */}
       <section className="container mx-auto px-4 md:px-6">
         <div className="max-w-3xl mx-auto space-y-12">
@@ -263,6 +309,12 @@ export default function LandingPage() {
               <AccordionTrigger className="text-left font-bold py-6">What about the "Lebenslauf" format?</AccordionTrigger>
               <AccordionContent className="text-muted-foreground leading-relaxed">
                 The modern German "Lebenslauf" is reverse-chronological. It should be factual, signed (optional for digital applications), and include a clear section for languages and IT skills.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-4">
+              <AccordionTrigger className="text-left font-bold py-6">Is my data safe? Do you store my resume?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
+                Privacy is our priority. <b>We do not save any of your CV data on our servers.</b> Everything you type or upload is processed in your browser or used temporarily for AI generation. Once you close the session, your data is gone unless you manually export it.
               </AccordionContent>
             </AccordionItem>
           </Accordion>

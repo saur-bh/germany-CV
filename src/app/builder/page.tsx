@@ -214,13 +214,19 @@ export default function BuilderPage() {
                   Tailored for international talent & <b>Chancenkarte</b> holders.
                 </p>
               </div>
-              <Button 
-                variant="outline" 
-                onClick={() => setShowPreview(!showPreview)}
-                className="rounded-xl border-primary text-primary hover:bg-primary/5"
-              >
-                <Eye className="mr-2 h-4 w-4" /> {showPreview ? "Hide Preview" : "Live Preview"}
-              </Button>
+              <div className="flex flex-col items-end gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowPreview(!showPreview)}
+                  className="rounded-xl border-primary text-primary hover:bg-primary/5"
+                >
+                  <Eye className="mr-2 h-4 w-4" /> {showPreview ? "Hide Preview" : "Live Preview"}
+                </Button>
+                <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground bg-white/50 px-2 py-1 rounded-full border">
+                  <ShieldCheck className="h-3 w-3 text-green-600" />
+                  <span>Privacy First: We don't save your data.</span>
+                </div>
+              </div>
             </div>
 
           <div className={cn(
@@ -949,6 +955,22 @@ export default function BuilderPage() {
                       <Button className="bg-accent hover:bg-accent/90 text-white font-bold h-12 px-8" onClick={() => window.print()}>
                         <Download className="mr-2 h-5 w-5" /> Download PDF
                       </Button>
+                    </div>
+
+                    <div className="mt-12 p-8 bg-primary/5 border border-primary/20 rounded-[2rem] space-y-6">
+                      <div className="flex flex-col md:flex-row gap-6 items-center">
+                        <div className="h-20 w-20 rounded-full bg-accent text-white flex items-center justify-center text-2xl font-bold shrink-0">SV</div>
+                        <div className="space-y-2 text-center md:text-left">
+                          <h3 className="text-xl font-bold">Need a professional review?</h3>
+                          <p className="text-sm text-muted-foreground leading-relaxed">
+                            I'm <b>Saurabh Verma</b>, and I help international talent land jobs in Germany. 
+                            Book a 1:1 session for a detailed CV review or interview preparation.
+                          </p>
+                        </div>
+                        <Button asChild className="bg-primary hover:bg-primary/90 text-white font-bold h-12 px-8 shrink-0">
+                          <Link href="/sessions">Book Consultation</Link>
+                        </Button>
+                      </div>
                     </div>
 
                     <div className="text-center text-sm text-muted-foreground">

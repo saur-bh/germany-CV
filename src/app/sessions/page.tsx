@@ -72,7 +72,7 @@ export default function SessionsPage() {
           </div>
           <CardContent className="p-8 flex-grow space-y-6">
             <p className="text-muted-foreground">
-              A community-driven Q&A session where we discuss Chancenkarte, ATS-friendly CVs, and relocation strategies.
+              A community-driven Q&A session led by <b>Saurabh Verma</b>. We discuss Chancenkarte, German CV standards, and relocation strategies.
             </p>
             <ul className="space-y-3">
               {[
@@ -119,7 +119,7 @@ export default function SessionsPage() {
           </div>
           <CardContent className="p-8 flex-grow space-y-6">
             <p className="text-muted-foreground">
-              Want a deep dive into your profile? Book a private 30-minute session to perfect your application for specific German companies.
+              Want a deep dive into your profile? Book a private 30-minute session with <b>Saurabh Verma</b> to perfect your application for specific German companies.
             </p>
             <ul className="space-y-3">
               {[
@@ -187,7 +187,13 @@ export default function SessionsPage() {
             <Link href="/guide">Read Full Market Guide</Link>
           </Button>
         </div>
+        {/* Privacy Notice */}
+      <div className="text-center p-6 border rounded-3xl bg-muted/20">
+        <p className="text-xs text-muted-foreground max-w-2xl mx-auto">
+          <b>Privacy Note:</b> We do not store your CV or personal data on our servers. All information used during sessions or within the builder is processed temporarily and not saved unless explicitly stated otherwise.
+        </p>
       </div>
+    </div>
     </div>
   );
 }
