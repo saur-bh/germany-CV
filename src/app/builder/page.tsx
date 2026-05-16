@@ -86,17 +86,9 @@ export default function BuilderPage() {
 
   const [deepseekKey, setDeepseekKey] = useState("");
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
-  const [showPreview, setShowPreview] = useState(false);
+  const [showPreview, setShowPreview] = useState(true);
   const [isParsing, setIsParsing] = useState(false);
-
-  useEffect(() => {
-    try {
-      const savedKey = window.sessionStorage.getItem("deepseek_key");
-      if (typeof savedKey === "string") {
-        setDeepseekKey(savedKey);
-      }
-    } catch {}
-  }, []);
+  const [aiRefining, setAiRefining] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createSupabaseBrowserClient();
@@ -388,20 +380,33 @@ export default function BuilderPage() {
                       <div className="flex items-center gap-3">
                         <FileText className="h-5 w-5 text-primary" />
                         <h3 className="font-bold">Quick Start: Upload Existing Resume</h3>
-                        <span className="bg-accent/10 text-accent text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest border border-accent/20">Coming Soon</span>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        Soon you'll be able to upload your PDF/DOCX resume and let AI populate the fields for you. 
+                        Upload your PDF or DOCX resume. AI will extract the text and auto-fill your CV fields.
                       </p>
-                      <div className="flex items-center gap-4 opacity-50 pointer-events-none">
+                      {!deepseekKey && (
+                        <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 p-3 rounded-lg flex items-center gap-2">
+                          <AlertCircle className="h-4 w-4 shrink-0" />
+                          <span>Set your <b>DeepSeek API key</b> in the AI Settings panel (right sidebar) to enable resume parsing.</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-4">
                         <Input 
-                          type="file" 
-                          disabled
+                          type="file"
+                          accept=".pdf,.docx,.txt"
+                          disabled={isParsing || !deepseekKey}
                           className="max-w-xs bg-white"
+                          onChange={handleResumeUpload}
                         />
+                        {isParsing && (
+                          <div className="flex items-center gap-2 text-sm text-primary font-medium">
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent" />
+                            Parsing...
+                          </div>
+                        )}
                       </div>
                       <p className="text-xs font-medium text-primary">
-                        ✨ Pro Tip: You can still use AI to generate your summary and experience bullets in the following steps!
+                        ✨ Pro Tip: You can also use AI to generate your summary and experience bullets in the following steps!
                       </p>
                     </div>
                   )}
@@ -599,31 +604,43 @@ export default function BuilderPage() {
 
                 {stepId === "summary" && (
                   <div className="space-y-6 animate-in fade-in duration-500">
+                    {!deepseekKey && (
+                      <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 p-3 rounded-lg flex items-center gap-2">
+                        <AlertCircle className="h-4 w-4 shrink-0" />
+                        <span>Set your <b>DeepSeek API key</b> in the AI Settings panel (right sidebar) to enable AI features.</span>
+                      </div>
+                    )}
                     <div className="flex flex-col gap-3">
                       <div className="flex items-center justify-between gap-3">
                         <Label htmlFor="summary">Professional Summary</Label>
                         <Button
                           variant="outline"
                           size="sm"
+                          disabled={!deepseekKey || aiRefining === 'summary'}
                           onClick={async () => {
-                            const text = await callAI("profile_summary", {
-                              targetRole: cvData.targetRole,
-                              workAuth: cvData.personal.workAuth,
-                              language: cvData.languages
-                                .map((l) => `${l.name || "Language"} ${l.level}`)
-                                .join(", "),
-                              experience: cvData.experience
-                                .map((e) => `${e.title} at ${e.company}: ${e.description}`)
-                                .join("\n"),
-                              skills: cvData.skills.join(", "),
-                            });
-                            if (text) {
-                              updateCV("summary", text);
-                              toast({ title: "Summary generated" });
+                            setAiRefining('summary');
+                            try {
+                              const text = await callAI("profile_summary", {
+                                targetRole: cvData.targetRole,
+                                workAuth: cvData.personal.workAuth,
+                                language: cvData.languages
+                                  .map((l) => `${l.name || "Language"} ${l.level}`)
+                                  .join(", "),
+                                experience: cvData.experience
+                                  .map((e) => `${e.title} at ${e.company}: ${e.description}`)
+                                  .join("\n"),
+                                skills: cvData.skills.join(", "),
+                              });
+                              if (text) {
+                                updateCV("summary", text);
+                                toast({ title: "✨ Summary generated!", description: "Review and edit as needed." });
+                              }
+                            } finally {
+                              setAiRefining(null);
                             }
                           }}
                         >
-                          Generate with AI
+                          {aiRefining === 'summary' ? 'Generating...' : '✨ Generate with AI'}
                         </Button>
                       </div>
                       <p className="text-xs text-muted-foreground">
@@ -727,27 +744,33 @@ export default function BuilderPage() {
                           <Button
                             variant="outline"
                             size="sm"
+                            disabled={!deepseekKey || aiRefining === `exp-${idx}`}
                             onClick={async () => {
-                              const text = await callAI("experience_bullets", {
-                                experienceText: exp.description,
-                                jobTitle: exp.title,
-                                company: exp.company,
-                                location: exp.location,
-                                duration: exp.duration,
-                              });
-                              if (text) {
-                                const newExp = [...cvData.experience];
-                                newExp[idx].description = text
-                                  .split("\n")
-                                  .map((l) => l.replace(/^[-•\s]+/, "").trim())
-                                  .filter(Boolean)
-                                  .join("\n");
-                                updateCV("experience", newExp);
-                                toast({ title: "Bullet points refined" });
+                              setAiRefining(`exp-${idx}`);
+                              try {
+                                const text = await callAI("experience_bullets", {
+                                  experienceText: exp.description,
+                                  jobTitle: exp.title,
+                                  company: exp.company,
+                                  location: exp.location,
+                                  duration: exp.duration,
+                                });
+                                if (text) {
+                                  const newExp = [...cvData.experience];
+                                  newExp[idx].description = text
+                                    .split("\n")
+                                    .map((l) => l.replace(/^[-•\s]+/, "").trim())
+                                    .filter(Boolean)
+                                    .join("\n");
+                                  updateCV("experience", newExp);
+                                  toast({ title: "✨ Bullet points refined!", description: "Review and edit as needed." });
+                                }
+                              } finally {
+                                setAiRefining(null);
                               }
                             }}
                           >
-                            Refine with AI
+                            {aiRefining === `exp-${idx}` ? 'Refining...' : '✨ Refine with AI'}
                           </Button>
                         </div>
                       </div>
@@ -861,24 +884,30 @@ export default function BuilderPage() {
                       <Button
                         variant="outline"
                         size="sm"
+                        disabled={!deepseekKey || aiRefining === 'skills'}
                         onClick={async () => {
-                          const text = await callAI("skills", {
-                            targetRole: cvData.targetRole,
-                            experience: cvData.experience
-                              .map((e) => `${e.title} at ${e.company}: ${e.description}`)
-                              .join("\n"),
-                          });
-                          if (!text) return;
-                          const nextSkills = text
-                            .split(/[\n,•]/g)
-                            .map((s) => s.trim())
-                            .filter(Boolean)
-                            .map((s) => s.replace(/^[-•\s]+/, "").trim());
-                          updateCV("skills", Array.from(new Set([...cvData.skills, ...nextSkills])));
-                          toast({ title: "Skills suggested" });
+                          setAiRefining('skills');
+                          try {
+                            const text = await callAI("skills", {
+                              targetRole: cvData.targetRole,
+                              experience: cvData.experience
+                                .map((e) => `${e.title} at ${e.company}: ${e.description}`)
+                                .join("\n"),
+                            });
+                            if (!text) return;
+                            const nextSkills = text
+                              .split(/[\n,•]/g)
+                              .map((s) => s.trim())
+                              .filter(Boolean)
+                              .map((s) => s.replace(/^[-•\s]+/, "").trim());
+                            updateCV("skills", Array.from(new Set([...cvData.skills, ...nextSkills])));
+                            toast({ title: "✨ Skills suggested!", description: "Remove any that don't apply." });
+                          } finally {
+                            setAiRefining(null);
+                          }
                         }}
                       >
-                        Suggest with AI
+                        {aiRefining === 'skills' ? 'Suggesting...' : '✨ Suggest with AI'}
                       </Button>
                     </div>
                     <div className="flex flex-wrap gap-2 min-h-[100px] p-4 border rounded-xl bg-muted/20">
@@ -1140,18 +1169,79 @@ export default function BuilderPage() {
 
             {/* Sticky Panel (Tips or Preview) */}
             <aside className="hidden lg:block sticky top-28 space-y-6 max-h-[calc(100vh-8rem)] overflow-y-auto no-scrollbar">
+              {/* Toggle between Preview and Tips */}
+              <div className="flex items-center gap-2 p-1 bg-muted rounded-2xl">
+                <button
+                  className={cn(
+                    "flex-1 text-xs font-bold py-2 px-4 rounded-xl transition-all",
+                    showPreview ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
+                  )}
+                  onClick={() => setShowPreview(true)}
+                >
+                  <Eye className="h-3.5 w-3.5 inline mr-1.5" />Live Preview
+                </button>
+                <button
+                  className={cn(
+                    "flex-1 text-xs font-bold py-2 px-4 rounded-xl transition-all",
+                    !showPreview ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
+                  )}
+                  onClick={() => setShowPreview(false)}
+                >
+                  <Cpu className="h-3.5 w-3.5 inline mr-1.5" />AI Settings
+                </button>
+              </div>
+
               {showPreview ? (
-                <div className="animate-in slide-in-from-right duration-500">
+                <div className="animate-in fade-in duration-300">
                   <div className="flex items-center justify-between mb-4">
                     <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Live Preview</p>
-                    <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">Auto-syncing</span>
+                    <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold animate-pulse">● Auto-syncing</span>
                   </div>
-                  <div className="rounded-2xl overflow-hidden shadow-2xl border bg-white scale-[0.7] origin-top">
+                  <div className="rounded-2xl overflow-hidden shadow-2xl border bg-white scale-[0.55] origin-top -mb-[45%]">
                     <CVPreview cvData={cvData} photoUrl={photoUrl} />
                   </div>
                 </div>
               ) : (
-                <div className="space-y-6 animate-in slide-in-from-left duration-500">
+                <div className="space-y-6 animate-in fade-in duration-300">
+                  {/* AI Settings Card */}
+                  <Card className="bg-white border-none rounded-2xl shadow-lg overflow-hidden">
+                    <div className="h-1 bg-gradient-to-r from-primary to-accent" />
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-bold flex items-center gap-2">
+                        <Cpu className="h-4 w-4 text-accent" /> AI Settings
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-[10px] text-muted-foreground">Provide your DeepSeek API key to enable AI features (Summary, Skills, Refine, Resume Parsing).</p>
+                      <div className="space-y-2">
+                        <Label className="text-[10px] uppercase text-muted-foreground font-bold">DeepSeek API Key</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            type="password"
+                            value={deepseekKey}
+                            placeholder="sk-..."
+                            className="h-9 text-xs rounded-lg"
+                            onChange={(e) => setDeepseekKey(e.target.value)}
+                          />
+                        </div>
+                        {deepseekKey ? (
+                          <div className="flex items-center gap-1.5 text-[10px] text-green-700 font-bold">
+                            <CheckCircle className="h-3 w-3" /> Key saved locally (auto-saved)
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1.5 text-[10px] text-amber-600 font-bold">
+                            <AlertCircle className="h-3 w-3" /> No key set — AI features disabled
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-[10px] leading-relaxed text-muted-foreground space-y-1">
+                        <p>Get your key at <a href="https://platform.deepseek.com/" target="_blank" className="text-accent underline font-bold">platform.deepseek.com</a></p>
+                        <p className="flex items-center gap-1"><ShieldCheck className="h-3 w-3 text-green-600" /> Stored only in your browser. Never sent to our server.</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Context Tip */}
                   <Card className="bg-primary text-primary-foreground border-none rounded-2xl shadow-lg">
                     <CardHeader className="pb-2">
                       <CardTitle className="text-sm font-bold flex items-center gap-2">
@@ -1165,50 +1255,14 @@ export default function BuilderPage() {
                       {steps[currentStep].id === 'experience' && "Use reverse-chronological order and start bullets with action verbs. If your company isn't well-known in Germany, add a 1-line description of what it does."}
                       {steps[currentStep].id === 'skills' && "Group your technical skills. Avoid generic terms. Mention tools specifically used in the German industry if applicable."}
                       {steps[currentStep].id === 'languages' && "German levels (A1-C2) are a hard requirement for many roles. Be precise and honest about your current level."}
-                    </CardContent>
-                  </Card>
-
-                  <Card className="bg-white border-none rounded-2xl shadow-lg overflow-hidden">
-                    <div className="h-1 bg-accent" />
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-bold flex items-center gap-2">
-                        <Cpu className="h-4 w-4 text-accent" /> AI Settings
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <p className="text-[10px] text-muted-foreground uppercase">Provide your DeepSeek API key to enable AI features (Summary, Skills, Resume Parsing).</p>
-                      <div className="space-y-2">
-                        <Label className="text-[10px] uppercase text-muted-foreground">DeepSeek API Key</Label>
-                        <div className="flex gap-2">
-                          <Input
-                            type="password"
-                            value={deepseekKey}
-                            placeholder="sk-..."
-                            className="h-8 text-xs rounded-lg"
-                            onChange={(e) => setDeepseekKey(e.target.value)}
-                          />
-                          <Button 
-                            variant="secondary" 
-                            size="sm" 
-                            className="h-8 text-[10px] uppercase font-bold"
-                            onClick={() => {
-                              toast({ title: "Settings Saved", description: "Your API key has been stored locally." });
-                            }}
-                          >
-                            Save
-                          </Button>
-                        </div>
-                      </div>
-                      <p className="text-[10px] leading-relaxed text-muted-foreground">
-                        Get your key at <a href="https://platform.deepseek.com/" target="_blank" className="text-accent underline">platform.deepseek.com</a>.
-                      </p>
+                      {steps[currentStep].id === 'support' && "A 1:1 consultation can dramatically improve your chances. Saurabh reviews your CV with the eye of a German recruiter."}
+                      {steps[currentStep].id === 'final' && "Save your PDF as FirstName_LastName_CV.pdf. German recruiters expect this naming convention."}
                     </CardContent>
                   </Card>
 
                   <div className="p-4 border border-dashed rounded-[1.5rem] bg-accent/5 space-y-2 border-accent/20">
                     <p className="text-xs font-bold text-accent uppercase tracking-widest">ATS Alert</p>
-                    <p className="text-[10px] text-muted-foreground uppercase">Critical Rule:</p>
-                    <p className="text-xs font-medium leading-tight">Avoid images, graphics, and tables. Our templates handle this automatically.</p>
+                    <p className="text-xs font-medium leading-tight">Avoid images, graphics, and tables in your CV content. Our templates handle formatting automatically.</p>
                   </div>
                 </div>
               )}
