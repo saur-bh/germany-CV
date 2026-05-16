@@ -84,27 +84,27 @@ export default function LandingPage() {
       {/* Benefits Section */}
       <section className="container mx-auto px-4 md:px-6">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <h2 className="text-3xl md:text-4xl font-bold">Why the German Market is Different</h2>
+          <h2 className="text-3xl md:text-4xl font-bold">You've Got the Chancenkarte. Now What?</h2>
           <p className="text-muted-foreground text-lg">
-            German recruiters have high standards for structure, clarity, and factual accuracy. Generic international CVs often fail initial screening.
+            You've taken the leap to move to Germany, but getting interviews feels impossible. It's not your skills—it's your CV. German recruiters look for specific things.
           </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
           {[
             {
-              title: "German Standard Layout",
-              desc: "Follow the precise structure expected by German HR (Lebenslauf), optimized for clarity and professionalism.",
+              title: "Beat the Auto-Rejection",
+              desc: "We use the precise 'Lebenslauf' structure German HR expects, ensuring your CV passes the initial 6-second scan.",
               icon: <Search className="h-8 w-8 text-accent" />
             },
             {
-              title: "Chancenkarte Ready",
-              desc: "Clearly communicate your visa status, availability, and relocation timeline—the #1 thing German recruiters look for.",
+              title: "Highlight Your Visa Status",
+              desc: "Don't leave them guessing. We clearly position your Chancenkarte, availability, and relocation timeline as a strength.",
               icon: <FileText className="h-8 w-8 text-accent" />
             },
             {
-              title: "International Move Expert",
-              desc: "Translate your international experience into terms that German hiring managers understand and value.",
+              title: "Translate Your Impact",
+              desc: "Turn your international experience into the data-driven, factual language that German hiring managers trust.",
               icon: <Award className="h-8 w-8 text-accent" />
             }
           ].map((benefit, i) => (

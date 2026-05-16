@@ -29,6 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { CVPreview } from "./CVPreview";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import confetti from "canvas-confetti";
 
 const steps = [
   { id: "personal", title: "Personal Details", icon: User },
@@ -1054,7 +1055,18 @@ export default function BuilderPage() {
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-                      <Button className="bg-accent hover:bg-accent/90 text-white font-bold h-12 px-8" onClick={() => window.print()}>
+                      <Button 
+                        className="bg-accent hover:bg-accent/90 text-white font-bold h-12 px-8" 
+                        onClick={() => {
+                          confetti({
+                            particleCount: 150,
+                            spread: 80,
+                            origin: { y: 0.6 },
+                            colors: ['#2563eb', '#f59e0b', '#10b981']
+                          });
+                          window.print();
+                        }}
+                      >
                         <Download className="mr-2 h-5 w-5" /> Download PDF
                       </Button>
                     </div>
@@ -1108,7 +1120,15 @@ export default function BuilderPage() {
                     ) : (
                       <Button 
                         className="px-10 rounded-xl bg-green-600 hover:bg-green-700 h-12 text-base font-bold shadow-lg shadow-green-200" 
-                        onClick={() => window.print()}
+                        onClick={() => {
+                          confetti({
+                            particleCount: 150,
+                            spread: 80,
+                            origin: { y: 0.6 },
+                            colors: ['#2563eb', '#f59e0b', '#10b981']
+                          });
+                          window.print();
+                        }}
                       >
                         <Download className="mr-2 h-5 w-5" /> Export CV
                       </Button>

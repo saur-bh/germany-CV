@@ -63,23 +63,23 @@ export default function SessionsPage() {
               <div className="p-2 bg-white/10 rounded-lg">
                 <Users className="h-6 w-6" />
               </div>
-              <span className="bg-accent text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Weekly Event</span>
+              <span className="bg-accent text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Weekly Support</span>
             </div>
-            <CardTitle className="text-2xl mb-2">Sunday Group Session</CardTitle>
+            <CardTitle className="text-2xl mb-2">Sunday Sync: The India-to-Germany Journey</CardTitle>
             <CardDescription className="text-primary-foreground/80 text-lg">
               Every Sunday at 9:00 AM IST
             </CardDescription>
           </div>
           <CardContent className="p-8 flex-grow space-y-6">
             <p className="text-muted-foreground">
-              A community-driven Q&A session led by <b>Saurabh Verma</b>. We discuss Chancenkarte, German CV standards, and relocation strategies.
+              Moving to Germany is tough. Doing it alone is harder. Join <b>Saurabh Verma</b> and fellow job seekers in a safe space where we discuss the real struggles of the Chancenkarte journey.
             </p>
             <ul className="space-y-3">
               {[
-                "Live CV reviews (selected samples)",
-                "Chancenkarte latest updates",
-                "Q&A about German work culture",
-                "Networking with fellow applicants"
+                "Live CV tear-downs (what works, what doesn't)",
+                "Decoding German recruiter behavior",
+                "Navigating the 'No German Language' barrier",
+                "Emotional support & networking"
               ].map((item, i) => (
                 <li key={i} className="flex items-center gap-3 text-sm font-medium">
                   <CheckCircle2 className="h-5 w-5 text-accent shrink-0" />
@@ -110,23 +110,23 @@ export default function SessionsPage() {
               <div className="p-2 bg-white/10 rounded-lg">
                 <Zap className="h-6 w-6" />
               </div>
-              <span className="bg-white text-accent text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Premium Service</span>
+              <span className="bg-white text-accent text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Premium Coaching</span>
             </div>
-            <CardTitle className="text-2xl mb-2">Priority 1:1 CV Review</CardTitle>
+            <CardTitle className="text-2xl mb-2">1:1 "Get Me Hired" Strategy Session</CardTitle>
             <CardDescription className="text-white/80 text-lg">
-              Personalized strategy session
+              Stop guessing. Let's build your action plan.
             </CardDescription>
           </div>
           <CardContent className="p-8 flex-grow space-y-6">
             <p className="text-muted-foreground">
-              Want a deep dive into your profile? Book a private 60-minute session with <b>Saurabh Verma</b> to perfect your application for specific German companies.
+              Are you applying to dozens of roles but hearing nothing back? Book a private 60-minute session with <b>Saurabh Verma</b>. We'll find out exactly why your profile is getting rejected and fix it.
             </p>
             <ul className="space-y-3">
               {[
-                "Comprehensive line-by-line CV audit",
-                "Job-specific keyword optimization",
-                "Personalized LinkedIn profile review",
-                "Interview preparation basics"
+                "Line-by-line CV rewrite (X-Y-Z formula)",
+                "Positioning your Chancenkarte as a superpower",
+                "LinkedIn profile optimization for German HR",
+                "Mock interview for behavioral questions"
               ].map((item, i) => (
                 <li key={i} className="flex items-center gap-3 text-sm font-medium">
                   <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
