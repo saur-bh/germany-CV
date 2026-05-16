@@ -28,6 +28,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { CVPreview } from "./CVPreview";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 const steps = [
   { id: "personal", title: "Personal Details", icon: User },
@@ -175,6 +176,34 @@ export default function BuilderPage() {
               ? parsedData.languages.map((l: any, i: number) => ({ id: i + 1, ...l }))
               : prev.languages,
           }));
+
+          // 4. Upload to Supabase Storage if user is logged in
+          const supabase = createSupabaseBrowserClient();
+          if (supabase) {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+              const fileExt = file.name.split('.').pop();
+              const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+              
+              const { error: uploadError } = await supabase.storage
+                .from('resumes')
+                .upload(fileName, file);
+                
+              if (uploadError) {
+                console.error("Storage upload error:", uploadError);
+                toast({
+                  title: "Storage Error",
+                  description: "Failed to save resume to your account. You can still use the builder.",
+                  variant: "destructive",
+                });
+              } else {
+                toast({
+                  title: "Success",
+                  description: "Resume saved to your account.",
+                });
+              }
+            }
+          }
 
           toast({
             title: "Resume parsed successfully!",
