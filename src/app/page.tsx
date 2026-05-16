@@ -261,7 +261,7 @@ export default function LandingPage() {
                   </div>
                 </div>
                 <Button asChild className="bg-accent hover:bg-accent/90 text-white font-bold h-12 px-8">
-                  <Link href="/sessions">Book a 1:1 Session</Link>
+                  <Link href="/buy-me-coffee">Book a 1:1 Session</Link>
                 </Button>
               </div>
             </div>

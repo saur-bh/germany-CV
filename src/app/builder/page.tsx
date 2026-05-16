@@ -968,7 +968,7 @@ export default function BuilderPage() {
                           </p>
                         </div>
                         <Button asChild className="bg-primary hover:bg-primary/90 text-white font-bold h-12 px-8 shrink-0">
-                          <Link href="/sessions">Book Consultation</Link>
+                          <Link href="/buy-me-coffee">Book Consultation</Link>
                         </Button>
                       </div>
                     </div>
