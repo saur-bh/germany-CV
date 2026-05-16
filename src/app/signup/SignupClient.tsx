@@ -37,7 +37,9 @@ export function SignupClient() {
 
     const supabase = createSupabaseBrowserClient();
     if (!supabase) {
-      setErrorText("Supabase is not configured yet. Please set SUPABASE URL and ANON key.");
+      setErrorText(
+        "Supabase is not configured yet. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY."
+      );
       setSubmitting(false);
       return;
     }

@@ -10,18 +10,20 @@ export async function middleware(req: NextRequest) {
 
     const supabaseUrl =
       process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-    const supabaseAnonKey =
+    const supabasePublishableKey =
+      process.env.SUPABASE_PUBLISHABLE_KEY ??
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
       process.env.SUPABASE_ANON_KEY ??
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
       "";
 
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!supabaseUrl || !supabasePublishableKey) {
       const url = new URL("/signup", req.url);
       url.searchParams.set("callbackUrl", req.nextUrl.pathname);
       return NextResponse.redirect(url);
     }
 
-    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    const supabase = createServerClient(supabaseUrl, supabasePublishableKey, {
       cookies: {
         getAll() {
           return req.cookies.getAll();
