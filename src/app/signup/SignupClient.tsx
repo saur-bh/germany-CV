@@ -49,6 +49,7 @@ export function SignupClient() {
       password,
       options: {
         data: name ? { name } : undefined,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 
