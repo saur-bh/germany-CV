@@ -243,114 +243,117 @@ export default function GuidePage() {
   };
 
   return (
-    <div className="bg-[#f8fafc] min-h-screen pb-20">
-      <div className="container mx-auto px-4 py-12 md:py-20 max-w-4xl">
-        <div className="space-y-8">
+    <div className="bg-background min-h-screen pb-20 relative overflow-hidden">
+      {/* Decorative Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-primary/10 to-transparent -z-10" />
+      <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-accent/20 rounded-full blur-[120px] -z-10 animate-pulse" />
+      <div className="absolute top-[20%] left-[-10%] w-[500px] h-[500px] bg-primary/20 rounded-full blur-[100px] -z-10" />
+
+      <div className="container mx-auto px-4 py-16 md:py-24 max-w-7xl">
+        <div className="space-y-12">
           {/* Header */}
-          <div className="text-center space-y-4">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest border border-primary/20">
-              <Book className="h-4 w-4" /> Comprehensive Guide
+          <div className="text-center space-y-6 max-w-3xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-primary/20 text-primary text-xs font-bold uppercase tracking-widest shadow-sm">
+              <Book className="h-4 w-4" /> Stop the Rejections. Start Getting Interviews.
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tight text-primary">
-              The German CV <span className="text-accent">Playbook</span>
+            <h1 className="text-5xl md:text-7xl font-bold font-headline tracking-tight text-foreground leading-[1.1]">
+              The Ultimate <span className="text-accent relative inline-block">
+                German CV
+                <div className="absolute -bottom-2 left-0 w-full h-2 bg-accent/30 blur-md rounded-full" />
+              </span> Playbook
             </h1>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto italic">
-              Specifically designed for Indian professionals targeting the German market.
+            <p className="text-xl text-muted-foreground leading-relaxed">
+              We've analyzed thousands of successful applications from international professionals. Here is exactly what German HR managers are looking for.
             </p>
           </div>
 
-          {/* Progress Bar */}
-          <div className="space-y-3 max-w-xl mx-auto">
-            <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-              <span>Your Reading Journey</span>
-              <span>{Math.round(progress)}% Complete</span>
-            </div>
-            <Progress value={progress} className="h-2 rounded-full bg-white shadow-inner" />
-          </div>
-
-          {/* Book Layout */}
-          <div className="relative mt-12">
-            <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent rounded-[3rem] -z-10 blur-3xl" />
-            
-            <Card className="border-none shadow-[0_32px_64px_-12px_rgba(0,0,0,0.1)] rounded-[3rem] overflow-hidden bg-white/80 backdrop-blur-xl">
-              <div className="grid md:grid-cols-[300px_1fr] min-h-[500px]">
+          {/* Expansive Book Layout */}
+          <div className="relative mt-16 z-10">
+            <Card className="border border-white/40 shadow-[0_40px_100px_-20px_rgba(37,99,235,0.15)] rounded-[2.5rem] overflow-hidden bg-white/60 backdrop-blur-3xl">
+              <div className="flex flex-col lg:flex-row min-h-[650px]">
+                
                 {/* Sidebar Navigation (Gamified) */}
-                <div className="bg-primary p-8 text-primary-foreground hidden md:block">
-                  <p className="text-[10px] font-bold uppercase tracking-widest opacity-60 mb-8">Chapters</p>
-                  <nav className="space-y-2">
-                    {chapters.map((ch, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setCurrentChapter(i)}
-                        className={cn(
-                          "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left",
-                          currentChapter === i 
-                            ? "bg-white text-primary shadow-lg scale-105" 
-                            : completed.includes(i)
-                              ? "text-green-400 hover:bg-white/10"
-                              : "text-white/40 hover:bg-white/5"
-                        )}
-                      >
-                        <div className={cn(
-                          "h-5 w-5 rounded-full flex items-center justify-center shrink-0 border",
-                          completed.includes(i) ? "bg-green-500 border-green-500" : "border-white/20"
-                        )}>
-                          {completed.includes(i) ? <CheckCircle className="h-3 w-3 text-white" /> : <span>{i+1}</span>}
-                        </div>
-                        {ch.title}
-                      </button>
-                    ))}
-                  </nav>
+                <div className="bg-primary/5 lg:w-[320px] p-8 lg:p-10 border-b lg:border-b-0 lg:border-r border-primary/10 shrink-0">
+                  <div className="space-y-8">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-widest text-primary mb-3">Your Journey</p>
+                      <Progress value={progress} className="h-2 rounded-full bg-primary/10" />
+                      <p className="text-right text-[10px] text-muted-foreground mt-2 font-bold">{Math.round(progress)}% Complete</p>
+                    </div>
+                    
+                    <nav className="space-y-2">
+                      {chapters.map((ch, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setCurrentChapter(i)}
+                          className={cn(
+                            "w-full flex items-center gap-4 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-left group",
+                            currentChapter === i 
+                              ? "bg-white text-primary shadow-md scale-[1.02] border border-primary/10" 
+                              : completed.includes(i)
+                                ? "text-green-700 hover:bg-green-50"
+                                : "text-muted-foreground hover:bg-white/50 hover:text-foreground"
+                          )}
+                        >
+                          <div className={cn(
+                            "h-6 w-6 rounded-full flex items-center justify-center shrink-0 border-2 transition-colors",
+                            currentChapter === i ? "border-primary text-primary" 
+                            : completed.includes(i) ? "bg-green-500 border-green-500 text-white" 
+                            : "border-muted-foreground/30 text-muted-foreground/50 group-hover:border-foreground/30"
+                          )}>
+                            {completed.includes(i) ? <CheckCircle className="h-3 w-3" /> : <span className="text-[10px]">{i+1}</span>}
+                          </div>
+                          {ch.title}
+                        </button>
+                      ))}
+                    </nav>
+                  </div>
                 </div>
 
                 {/* Main Content Area */}
-                <div className="p-8 md:p-16 flex flex-col justify-between">
-                  <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-accent/10 rounded-2xl text-accent">
-                        <activeChapter.icon className="h-8 w-8" />
+                <div className="p-8 md:p-12 lg:p-16 flex-1 flex flex-col justify-between bg-white/50">
+                  <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-3xl mx-auto w-full">
+                    <div className="flex items-center gap-5">
+                      <div className="p-4 bg-accent/10 rounded-2xl text-accent shadow-inner">
+                        <activeChapter.icon className="h-10 w-10" />
                       </div>
-                      <h2 className="text-3xl font-bold font-headline">{activeChapter.title}</h2>
+                      <h2 className="text-4xl lg:text-5xl font-bold font-headline text-foreground">{activeChapter.title}</h2>
                     </div>
                     
-                    <div className="prose prose-slate max-w-none">
+                    <div className="prose prose-lg prose-slate max-w-none prose-headings:font-headline prose-p:text-muted-foreground prose-p:leading-relaxed">
                       {activeChapter.content}
                     </div>
                   </div>
 
-                  <div className="pt-12 flex justify-between items-center mt-auto border-t">
+                  <div className="pt-16 mt-12 border-t border-primary/10 flex flex-col sm:flex-row justify-between items-center gap-6 max-w-3xl mx-auto w-full">
                     <Button
                       variant="ghost"
                       onClick={() => setCurrentChapter(prev => Math.max(0, prev - 1))}
                       disabled={currentChapter === 0}
-                      className="rounded-xl h-12"
+                      className="rounded-2xl h-14 px-6 text-base font-medium hover:bg-primary/5 w-full sm:w-auto"
                     >
-                      <ChevronLeft className="mr-2 h-4 w-4" /> Previous
+                      <ChevronLeft className="mr-2 h-5 w-5" /> Previous Chapter
                     </Button>
                     
                     {isLast ? (
-                      <Button asChild className="bg-green-600 hover:bg-green-700 rounded-xl h-12 px-8 font-bold shadow-lg shadow-green-100">
-                        <Link href="/builder">Start Building My CV <ChevronRight className="ml-2 h-4 w-4" /></Link>
+                      <Button asChild className="bg-green-600 hover:bg-green-700 text-white rounded-2xl h-14 px-10 font-bold text-lg shadow-[0_10px_25px_-5px_rgba(22,163,74,0.4)] w-full sm:w-auto">
+                        <Link href="/builder">Build My CV Now <ChevronRight className="ml-2 h-5 w-5" /></Link>
                       </Button>
                     ) : (
                       <Button
                         onClick={handleNext}
-                        className="bg-primary hover:bg-primary/90 rounded-xl h-12 px-8 font-bold shadow-lg shadow-primary/20"
+                        className="bg-primary hover:bg-primary/90 text-white rounded-2xl h-14 px-10 font-bold text-lg shadow-[0_10px_25px_-5px_rgba(37,99,235,0.4)] w-full sm:w-auto transition-transform active:scale-95"
                       >
-                        Next Chapter <ChevronRight className="ml-2 h-4 w-4" />
+                        Next Chapter <ChevronRight className="ml-2 h-5 w-5" />
                       </Button>
                     )}
                   </div>
                 </div>
+
               </div>
             </Card>
           </div>
 
-          <div className="text-center pt-8">
-            <p className="text-xs text-muted-foreground italic">
-              ✨ Completed this playbook? You're now ahead of 80% of applicants.
-            </p>
-          </div>
         </div>
       </div>
     </div>
