@@ -56,7 +56,7 @@ export default function LandingPage() {
                   Start My Success Story <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="h-14 px-8 rounded-2xl border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10">
+              <Button asChild variant="outline" size="lg" className="h-14 px-8 rounded-2xl bg-transparent border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10 hover:text-white">
                 <Link href="/guide">Read the Guide</Link>
               </Button>
             </div>
