@@ -83,6 +83,8 @@ export default function BuilderPage() {
   const [deepseekKey, setDeepseekKey] = useState("");
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [isParsing, setIsParsing] = useState(false);
+  const [isPaid, setIsPaid] = useState(false);
 
   useEffect(() => {
     try {
@@ -94,6 +96,17 @@ export default function BuilderPage() {
       if (typeof savedKey === "string") {
         setDeepseekKey(savedKey);
       }
+
+      // Check paid status
+      const checkPaid = async () => {
+        const res = await fetch("/api/auth/me"); // Assuming this route exists or we create it
+        const data = await res.json();
+        if (data?.user?.user_metadata?.ai_paid) {
+          setIsPaid(true);
+          setAiMode("my");
+        }
+      };
+      checkPaid();
     } catch {}
   }, []);
 
@@ -138,6 +151,79 @@ export default function BuilderPage() {
     }
 
     return json?.text ?? null;
+  };
+
+  const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsParsing(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      // 1. Extract text from file
+      const parseRes = await fetch("/api/parse", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!parseRes.ok) {
+        throw new Error("Failed to extract text from file");
+      }
+
+      const { text: resumeText } = await parseRes.json();
+
+      if (!resumeText) {
+        throw new Error("No text found in resume");
+      }
+
+      // 2. Call AI to parse resume
+      const aiResponse = await callAI("parse_resume", { resumeText });
+
+      if (aiResponse) {
+        try {
+          const parsedData = JSON.parse(aiResponse.replace(/```json\n?|\n?```/g, ""));
+          
+          // 3. Merge with existing data
+          setCvData((prev) => ({
+            ...prev,
+            personal: { ...prev.personal, ...parsedData.personal },
+            summary: parsedData.summary || prev.summary,
+            experience: parsedData.experience?.length 
+              ? parsedData.experience.map((e: any, i: number) => ({ id: i + 1, ...e })) 
+              : prev.experience,
+            education: parsedData.education?.length
+              ? parsedData.education.map((e: any, i: number) => ({ id: i + 1, ...e }))
+              : prev.education,
+            skills: parsedData.skills || prev.skills,
+            languages: parsedData.languages?.length
+              ? parsedData.languages.map((l: any, i: number) => ({ id: i + 1, ...l }))
+              : prev.languages,
+          }));
+
+          toast({
+            title: "Resume parsed successfully!",
+            description: "Review and refine the populated details.",
+          });
+        } catch (e) {
+          console.error("JSON parse error", e);
+          toast({
+            title: "Parsing error",
+            description: "AI returned invalid format. Try again or enter manually.",
+            variant: "destructive",
+          });
+        }
+      }
+    } catch (err: any) {
+      toast({
+        title: "Upload failed",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsParsing(false);
+    }
   };
 
   return (
@@ -210,12 +296,33 @@ export default function BuilderPage() {
               <Card className="shadow-xl border-none bg-white/70 backdrop-blur-xl rounded-[2rem] overflow-hidden">
                 <div className="p-1 bg-gradient-to-r from-primary via-accent to-primary animate-gradient-x" />
                 <CardContent className="p-8 md:p-12">
-                  <div className="flex justify-between items-center mb-8">
-                    <h2 className="text-2xl font-bold font-headline">{steps[currentStep].title}</h2>
-                    <div className="text-sm font-medium text-muted-foreground">
                       {Math.round(progress)}% Complete
                     </div>
                   </div>
+
+                  {stepId === "personal" && (
+                    <div className="mb-8 p-6 bg-primary/5 border border-primary/20 rounded-2xl space-y-4">
+                      <div className="flex items-center gap-3">
+                        <FileText className="h-5 w-5 text-primary" />
+                        <h3 className="font-bold">Quick Start: Upload Existing Resume</h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Upload your PDF/DOCX resume and let AI populate the fields for you. 
+                        Requires "Use my key (₹99)" or your own DeepSeek API key.
+                      </p>
+                      <div className="flex items-center gap-4">
+                        <Input 
+                          type="file" 
+                          accept=".pdf,.docx,.txt" 
+                          className="max-w-xs bg-white"
+                          onChange={handleResumeUpload}
+                          disabled={isParsing}
+                        />
+                        {isParsing && <div className="text-sm text-primary animate-pulse font-medium">Parsing with AI...</div>}
+                      </div>
+                    </div>
+                  )}
+
                 {stepId === "personal" && (
                   <div className="space-y-6 animate-in fade-in duration-500">
                     <div className="grid md:grid-cols-2 gap-4">
@@ -960,7 +1067,14 @@ export default function BuilderPage() {
                             onChange={() => setAiMode("my")}
                             className="text-accent focus:ring-accent"
                           />
-                          <span className="group-hover:text-accent transition-colors">Use server key (₹99)</span>
+                          <span className="group-hover:text-accent transition-colors flex items-center gap-2">
+                            Use server key (₹99)
+                            {isPaid ? (
+                              <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-bold">Enabled</span>
+                            ) : (
+                              <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold">Locked</span>
+                            )}
+                          </span>
                         </label>
                         <label className="flex items-center gap-2 cursor-pointer group">
                           <input
@@ -986,9 +1100,11 @@ export default function BuilderPage() {
                         </div>
                       )}
 
-                      <Button asChild variant="outline" className="w-full border-primary rounded-xl h-10 text-xs font-bold hover:bg-primary hover:text-white transition-all">
-                        <Link href="/buy-me-coffee">Get Server Key Access</Link>
-                      </Button>
+                      {!isPaid && (
+                        <Button asChild variant="outline" className="w-full border-primary rounded-xl h-10 text-xs font-bold hover:bg-primary hover:text-white transition-all">
+                          <Link href="/buy-me-coffee">Unlock Server Key</Link>
+                        </Button>
+                      )}
                     </CardContent>
                   </Card>
 

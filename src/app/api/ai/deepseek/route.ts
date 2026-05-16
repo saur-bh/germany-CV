@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-type DeepSeekTask = "profile_summary" | "skills" | "experience_bullets";
+type DeepSeekTask = "profile_summary" | "skills" | "experience_bullets" | "parse_resume";
 
 function parsePaidEmails(value: string | undefined) {
   return (value ?? "")
@@ -74,6 +74,9 @@ export async function POST(request: Request) {
     if (body.task === "skills") {
       return "You are an ATS keyword expert for German job applications. Suggest specific technical and professional skills only. Avoid generic soft skills.";
     }
+    if (body.task === "parse_resume") {
+      return "You are an expert CV parser. Extract information from the provided raw text and return a JSON object with: personal (fullName, email, phone, address, linkedin), summary, experience (array of {title, company, location, duration, description}), education (array of {degree, school, location, year}), skills (array of strings), languages (array of {name, level}). Keep descriptions as bullet points. Return ONLY valid JSON.";
+    }
     return "You are an ATS CV editor for German job applications. Convert raw experience into 4-6 action-led bullet points with measurable impact where possible.";
   })();
 
@@ -106,6 +109,11 @@ export async function POST(request: Request) {
       ]
         .filter(Boolean)
         .join("\n");
+    }
+
+    if (body.task === "parse_resume") {
+      const rawText = String(body.input.resumeText ?? "");
+      return `Extract structured CV data from this raw text:\n\n${rawText}`;
     }
 
     const raw = String(body.input.experienceText ?? "");
