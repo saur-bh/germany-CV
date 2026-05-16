@@ -32,11 +32,21 @@ export default function LandingPage() {
               <span>Optimized for German Recruiters</span>
             </div>
             <h1 className="font-headline text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground leading-tight">
-              Master Your Job Search in <span className="text-accent underline decoration-wavy underline-offset-8">Germany</span>
+              Your Gateway to a Career in <span className="text-accent underline decoration-wavy underline-offset-8">Germany</span>
             </h1>
             <p className="text-lg text-primary-foreground/80 max-w-xl leading-relaxed">
-              Create an ATS-friendly CV that meets strict German standards. Built especially for Indians applying for jobs in Germany.
+              Designed for international talent and <b>Chancenkarte</b> holders. Build a CV that meets strict German standards and speaks the language of local recruiters.
             </p>
+            <div className="flex items-center gap-4 py-2">
+              <div className="flex -space-x-2">
+                {[1,2,3,4].map(i => (
+                  <div key={i} className="h-8 w-8 rounded-full border-2 border-primary bg-muted flex items-center justify-center text-[10px] font-bold text-primary">
+                    {String.fromCharCode(64 + i)}
+                  </div>
+                ))}
+              </div>
+              <p className="text-sm text-primary-foreground/70">Join 2,400+ expats landing interviews</p>
+            </div>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-white font-semibold">
                 <Link href="/signup">
@@ -80,18 +90,18 @@ export default function LandingPage() {
         <div className="grid md:grid-cols-3 gap-8">
           {[
             {
-              title: "ATS-Ready Formatting",
-              desc: "No icons, no complex tables, just clean structure that machines and humans love.",
+              title: "German Standard Layout",
+              desc: "Follow the precise structure expected by German HR (Lebenslauf), optimized for clarity and professionalism.",
               icon: <Search className="h-8 w-8 text-accent" />
             },
             {
-              title: "Standardized Order",
-              desc: "Follow the precise order expected by German HR: Profile, Experience, Education, Skills.",
+              title: "Chancenkarte Ready",
+              desc: "Clearly communicate your visa status, availability, and relocation timeline—the #1 thing German recruiters look for.",
               icon: <FileText className="h-8 w-8 text-accent" />
             },
             {
-              title: "Recruiter-First Layout",
-              desc: "Clean, professional, and trustworthy aesthetics inspired by German design principles.",
+              title: "International Move Expert",
+              desc: "Translate your international experience into terms that German hiring managers understand and value.",
               icon: <Award className="h-8 w-8 text-accent" />
             }
           ].map((benefit, i) => (
@@ -120,11 +130,11 @@ export default function LandingPage() {
             </p>
             <ul className="space-y-4">
               {[
-                "Ideal CV length & standard section order",
-                "ATS-friendly formatting (avoiding tables & icons)",
-                "How to write a compelling profile summary",
-                "Work authorization & relocation status guidelines",
-                "Language proficiency levels (CEFR standard)"
+                "Modern German 'Lebenslauf' structure",
+                "Clear visa & Chancenkarte status communication",
+                "Professional summary tailored for the German market",
+                "CEFR language proficiency guidelines (A1-C2)",
+                "Relocation timeline and availability standards"
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <CheckCircle2 className="h-6 w-6 text-accent shrink-0" />
@@ -149,12 +159,12 @@ export default function LandingPage() {
               </p>
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-red-50 p-4 rounded-lg border border-red-100">
-                  <p className="text-xs font-bold text-red-600 mb-1">DONT</p>
-                  <p className="text-xs">Use skill bars, icons, or complex graphical elements.</p>
+                  <p className="text-xs font-bold text-red-600 mb-1">COMMON MISTAKE</p>
+                  <p className="text-xs">Being vague about your visa or relocation status in Germany.</p>
                 </div>
                 <div className="bg-green-50 p-4 rounded-lg border border-green-100">
-                  <p className="text-xs font-bold text-green-600 mb-1">DO</p>
-                  <p className="text-xs">Use clear headings and quantifiable achievements.</p>
+                  <p className="text-xs font-bold text-green-600 mb-1">GERMAN WAY</p>
+                  <p className="text-xs">Explicitly stating 'Chancenkarte holder' or 'Relocating in Aug'.</p>
                 </div>
               </div>
             </div>

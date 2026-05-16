@@ -208,10 +208,10 @@ export default function BuilderPage() {
             <div className="mb-10 space-y-2 flex justify-between items-end">
               <div>
                 <h1 className="text-4xl font-bold font-headline tracking-tight text-primary">
-                  Build Your <span className="text-accent">Germany CV</span>
+                  Your German <span className="text-accent">Career Start</span>
                 </h1>
                 <p className="text-muted-foreground text-lg">
-                  Follow our guided steps to create a recruiter-ready application.
+                  Tailored for international talent & <b>Chancenkarte</b> holders.
                 </p>
               </div>
               <Button 
@@ -1011,16 +1011,16 @@ export default function BuilderPage() {
                   <Card className="bg-primary text-primary-foreground border-none rounded-2xl shadow-lg">
                     <CardHeader className="pb-2">
                       <CardTitle className="text-sm font-bold flex items-center gap-2">
-                        <Info className="h-4 w-4" /> Builder Tip
+                        <Info className="h-4 w-4" /> German Market Tip
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="text-xs leading-relaxed opacity-80">
-                      {steps[currentStep].id === 'personal' && "German recruiters expect to see your current location. If you are abroad, mention your relocation timeline and work permit status immediately."}
-                      {steps[currentStep].id === 'chancenkarte' && "Mention Chancenkarte/visa status clearly. Add your relocation timeline and preferred city to reduce recruiter uncertainty."}
-                      {steps[currentStep].id === 'summary' && "This is your 6-second hook. Mention your main tech stack, years of experience, and strongest achievement right at the start."}
-                      {steps[currentStep].id === 'experience' && "Use the past tense for previous roles and present tense for current ones. Always start with an action verb (e.g., 'Implemented', 'Reduced', 'Collaborated')."}
-                      {steps[currentStep].id === 'skills' && "Categorize your skills if possible (e.g., Languages, Frameworks, Tools). Avoid generic skills like 'Hardworking' or 'Microsoft Word'."}
-                      {steps[currentStep].id === 'languages' && "Be honest about German level. Add CEFR level (A1-C2). German recruiters care about this section."}
+                      {steps[currentStep].id === 'personal' && "Recruiters expect to see your German status immediately. If you have the Chancenkarte, state it clearly in your personal details or work authorization."}
+                      {steps[currentStep].id === 'chancenkarte' && "Your relocation timeline is the most critical piece of info. Be specific about when you can start working in Germany."}
+                      {steps[currentStep].id === 'summary' && "Focus on factual achievements. German hiring managers prefer hard data over 'soft' descriptions."}
+                      {steps[currentStep].id === 'experience' && "Use reverse-chronological order and start bullets with action verbs. If your company isn't well-known in Germany, add a 1-line description of what it does."}
+                      {steps[currentStep].id === 'skills' && "Group your technical skills. Avoid generic terms. Mention tools specifically used in the German industry if applicable."}
+                      {steps[currentStep].id === 'languages' && "German levels (A1-C2) are a hard requirement for many roles. Be precise and honest about your current level."}
                     </CardContent>
                   </Card>
 

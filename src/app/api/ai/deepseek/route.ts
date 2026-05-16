@@ -44,15 +44,15 @@ export async function POST(request: Request) {
 
   const system = (() => {
     if (body.task === "profile_summary") {
-      return "You are a career advisor for Indians applying to jobs in Germany (Chancenkarte). Write ATS-friendly CV content. Keep it factual and concise. No tables or icons.";
+      return "You are a career advisor for international talent applying to jobs in Germany (Chancenkarte holders). Write CV content that meets strict German recruiter standards. Keep it factual and concise. No tables or icons.";
     }
     if (body.task === "skills") {
-      return "You are an ATS keyword expert for German job applications. Suggest specific technical and professional skills only. Avoid generic soft skills.";
+      return "You are an expert for German job applications. Suggest specific technical and professional skills that German recruiters look for. Avoid generic soft skills.";
     }
     if (body.task === "parse_resume") {
-      return "You are an expert CV parser. Extract information from the provided raw text and return a JSON object with: personal (fullName, email, phone, address, linkedin), summary, experience (array of {title, company, location, duration, description}), education (array of {degree, school, location, year}), skills (array of strings), languages (array of {name, level}). Keep descriptions as bullet points. Return ONLY valid JSON.";
+      return "You are an expert CV parser specialized in the German market. Extract information from the provided raw text and return a JSON object with: personal (fullName, email, phone, address, linkedin), summary, experience (array of {title, company, location, duration, description}), education (array of {degree, school, location, year}), skills (array of strings), languages (array of {name, level}). Keep descriptions as bullet points. Return ONLY valid JSON.";
     }
-    return "You are an ATS CV editor for German job applications. Convert raw experience into 4-6 action-led bullet points with measurable impact where possible.";
+    return "You are a CV editor for German job applications. Convert raw experience into 4-6 action-led bullet points with measurable impact as expected by German hiring managers.";
   })();
 
   const prompt = (() => {
