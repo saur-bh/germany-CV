@@ -79,34 +79,17 @@ export default function BuilderPage() {
   const progress = ((currentStep + 1) / steps.length) * 100;
   const stepId = steps[currentStep]?.id;
 
-  const [aiMode, setAiMode] = useState<"my" | "own">("own");
   const [deepseekKey, setDeepseekKey] = useState("");
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
-  const [isPaid, setIsPaid] = useState(false);
 
   useEffect(() => {
     try {
-      const savedMode = window.localStorage.getItem("ai_mode");
       const savedKey = window.sessionStorage.getItem("deepseek_key");
-      if (savedMode === "my" || savedMode === "own") {
-        setAiMode(savedMode);
-      }
       if (typeof savedKey === "string") {
         setDeepseekKey(savedKey);
       }
-
-      // Check paid status
-      const checkPaid = async () => {
-        const res = await fetch("/api/auth/me"); // Assuming this route exists or we create it
-        const data = await res.json();
-        if (data?.user?.user_metadata?.ai_paid) {
-          setIsPaid(true);
-          setAiMode("my");
-        }
-      };
-      checkPaid();
     } catch {}
   }, []);
 
@@ -127,8 +110,7 @@ export default function BuilderPage() {
       body: JSON.stringify({
         task,
         input,
-        useServerKey: aiMode === "my",
-        userApiKey: aiMode === "own" ? deepseekKey : undefined,
+        userApiKey: deepseekKey,
       }),
     });
 
@@ -138,15 +120,7 @@ export default function BuilderPage() {
 
     if (!response.ok) {
       const msg = json?.error ?? "AI request failed";
-      if (response.status === 402) {
-        toast({
-          title: "Payment required",
-          description: "Pay ₹99 to use the server AI key, or use your own key.",
-          variant: "destructive",
-        });
-      } else {
-        toast({ title: "AI error", description: msg, variant: "destructive" });
-      }
+      toast({ title: "AI error", description: msg, variant: "destructive" });
       return null;
     }
 
@@ -1054,57 +1028,23 @@ export default function BuilderPage() {
                     <div className="h-1 bg-accent" />
                     <CardHeader className="pb-2">
                       <CardTitle className="text-sm font-bold flex items-center gap-2">
-                        <Cpu className="h-4 w-4 text-accent" /> AI Assist
+                        <Cpu className="h-4 w-4 text-accent" /> AI Settings
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="space-y-3 text-sm">
-                        <label className="flex items-center gap-2 cursor-pointer group">
-                          <input
-                            type="radio"
-                            name="aiMode"
-                            checked={aiMode === "my"}
-                            onChange={() => setAiMode("my")}
-                            className="text-accent focus:ring-accent"
-                          />
-                          <span className="group-hover:text-accent transition-colors flex items-center gap-2">
-                            Use server key (₹99)
-                            {isPaid ? (
-                              <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-bold">Enabled</span>
-                            ) : (
-                              <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold">Locked</span>
-                            )}
-                          </span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer group">
-                          <input
-                            type="radio"
-                            name="aiMode"
-                            checked={aiMode === "own"}
-                            onChange={() => setAiMode("own")}
-                            className="text-accent focus:ring-accent"
-                          />
-                          <span className="group-hover:text-accent transition-colors">Use my own key</span>
-                        </label>
+                      <p className="text-[10px] text-muted-foreground uppercase">Provide your DeepSeek API key to enable AI features (Summary, Skills, Resume Parsing).</p>
+                      <div className="space-y-2">
+                        <Label className="text-[10px] uppercase text-muted-foreground">DeepSeek API Key</Label>
+                        <Input
+                          value={deepseekKey}
+                          placeholder="sk-..."
+                          className="h-8 text-xs rounded-lg"
+                          onChange={(e) => setDeepseekKey(e.target.value)}
+                        />
                       </div>
-
-                      {aiMode === "own" && (
-                        <div className="space-y-2 animate-in zoom-in-95 duration-200">
-                          <Label className="text-[10px] uppercase text-muted-foreground">DeepSeek API Key</Label>
-                          <Input
-                            value={deepseekKey}
-                            placeholder="sk-..."
-                            className="h-8 text-xs rounded-lg"
-                            onChange={(e) => setDeepseekKey(e.target.value)}
-                          />
-                        </div>
-                      )}
-
-                      {!isPaid && (
-                        <Button asChild variant="outline" className="w-full border-primary rounded-xl h-10 text-xs font-bold hover:bg-primary hover:text-white transition-all">
-                          <Link href="/buy-me-coffee">Unlock Server Key</Link>
-                        </Button>
-                      )}
+                      <p className="text-[10px] leading-relaxed text-muted-foreground">
+                        Get your key at <a href="https://platform.deepseek.com/" target="_blank" className="text-accent underline">platform.deepseek.com</a>.
+                      </p>
                     </CardContent>
                   </Card>
 

@@ -3,12 +3,6 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type DeepSeekTask = "profile_summary" | "skills" | "experience_bullets" | "parse_resume";
 
-function parsePaidEmails(value: string | undefined) {
-  return (value ?? "")
-    .split(",")
-    .map((s) => s.trim().toLowerCase())
-    .filter(Boolean);
-}
 
 export async function POST(request: Request) {
   const supabase = await createSupabaseServerClient();
@@ -31,8 +25,7 @@ export async function POST(request: Request) {
     | {
         task: DeepSeekTask;
         input: Record<string, unknown>;
-        userApiKey?: string;
-        useServerKey?: boolean;
+        userApiKey: string;
       }
     | null;
 
@@ -40,31 +33,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 
-  const useServerKey = Boolean(body.useServerKey);
-  const paidEmails = parsePaidEmails(process.env.PAID_EMAILS);
-
-  const apiKey = useServerKey ? process.env.DEEPSEEK_API_KEY : body.userApiKey;
+  const apiKey = body.userApiKey;
 
   if (!apiKey) {
     return NextResponse.json(
-      {
-        error: useServerKey
-          ? "Server AI key is not configured"
-          : "Missing user API key",
-      },
+      { error: "Missing user API key. Please provide your own DeepSeek key in settings." },
       { status: 400 }
     );
-  }
-
-  if (useServerKey) {
-    const email = (user.email ?? "").toLowerCase();
-    const metaPaid = Boolean((user.user_metadata as any)?.ai_paid);
-    if ((!email || !paidEmails.includes(email)) && !metaPaid) {
-      return NextResponse.json(
-        { error: "Payment required (₹99) to use server AI key" },
-        { status: 402 }
-      );
-    }
   }
 
   const system = (() => {
