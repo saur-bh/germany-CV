@@ -311,18 +311,21 @@ export default function BuilderPage() {
                 </p>
               </div>
               <div className="flex flex-col items-end gap-2">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowPreview(!showPreview)}
-                  className="rounded-xl border-primary text-primary hover:bg-primary/5"
-                >
-                  <Eye className="mr-2 h-4 w-4" /> {showPreview ? "Hide Preview" : "Live Preview"}
-                </Button>
                 <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground bg-white/50 px-2 py-1 rounded-full border">
                   <ShieldCheck className="h-3 w-3 text-green-600" />
                   <span>Privacy First: We don't save your data.</span>
                 </div>
               </div>
+            </div>
+
+            {/* Floating Mobile/Tablet Preview Toggle */}
+            <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+              <Button 
+                onClick={() => setShowPreview(!showPreview)}
+                className="rounded-full shadow-2xl bg-primary hover:bg-primary/90 text-white h-14 px-8 border-4 border-white font-bold"
+              >
+                {showPreview ? <><ChevronLeft className="mr-2 h-5 w-5" /> Back to Edit</> : <><Eye className="mr-2 h-5 w-5" /> Live Preview</>}
+              </Button>
             </div>
 
           <div className={cn(

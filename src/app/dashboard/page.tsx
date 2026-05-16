@@ -22,6 +22,7 @@ export default function DashboardPage() {
   const [resumes, setResumes] = useState<ResumeFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [apiKey, setApiKey] = useState<string>("");
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const { toast } = useToast();
 
@@ -38,6 +39,10 @@ export default function DashboardPage() {
       }
 
       setUserEmail(user.email ?? null);
+
+      // Fetch saved API key from localStorage
+      const savedKey = window.localStorage.getItem("deepseek_key");
+      if (savedKey) setApiKey(savedKey);
 
       const { data, error } = await supabase.storage
         .from('resumes')
@@ -208,6 +213,36 @@ export default function DashboardPage() {
 
         <div className="space-y-6">
           <Card className="bg-primary text-primary-foreground border-none rounded-2xl shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Cpu className="h-5 w-5" /> AI Settings
+              </CardTitle>
+              <CardDescription className="text-primary-foreground/70">Manage your DeepSeek API Key</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <p className="text-[10px] uppercase font-bold tracking-widest opacity-70">DeepSeek Key</p>
+                <div className="flex gap-2">
+                  <input 
+                    type="password" 
+                    value={apiKey}
+                    onChange={(e) => {
+                      const newKey = e.target.value;
+                      setApiKey(newKey);
+                      window.localStorage.setItem("deepseek_key", newKey);
+                    }}
+                    placeholder="sk-..."
+                    className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-xs w-full focus:outline-none focus:ring-1 focus:ring-white/40"
+                  />
+                </div>
+              </div>
+              <p className="text-[10px] opacity-60 leading-relaxed italic">
+                This key is stored locally in your browser for privacy.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Calendar className="h-5 w-5" /> Quick Links
