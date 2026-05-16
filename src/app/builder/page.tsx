@@ -64,7 +64,7 @@ export default function BuilderPage() {
       targetCity: "",
       availability: "",
       visaStatus: "",
-      template: "one-page" as "one-page" | "two-page",
+      template: "two-page" as "one-page" | "two-page",
     },
     targetRole: "",
     summary: "",
@@ -507,33 +507,6 @@ export default function BuilderPage() {
                           placeholder="e.g. QA Automation Engineer"
                           onChange={(e) => updateCV("targetRole", e.target.value)}
                         />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>CV Template</Label>
-                        <div className="flex flex-col gap-2 text-sm">
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="radio"
-                              name="template"
-                              checked={cvData.chance.template === "one-page"}
-                              onChange={() =>
-                                updateCV("chance", { ...cvData.chance, template: "one-page" })
-                              }
-                            />
-                            <span>One-page (single column)</span>
-                          </label>
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="radio"
-                              name="template"
-                              checked={cvData.chance.template === "two-page"}
-                              onChange={() =>
-                                updateCV("chance", { ...cvData.chance, template: "two-page" })
-                              }
-                            />
-                            <span>Two-page (sidebar + photo)</span>
-                          </label>
-                        </div>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="visaStatus">Visa / Chancenkarte Status</Label>
@@ -1006,48 +979,45 @@ export default function BuilderPage() {
 
                 {stepId === "support" && (
                   <div className="space-y-8 animate-in fade-in duration-500">
-                    <div className="space-y-2">
-                      <h2 className="text-2xl font-bold">Buy me a coffee (optional)</h2>
-                      <p className="text-muted-foreground">
-                        If this helped you, you can support it. You can also skip and finish your CV.
+                    <div className="text-center space-y-3">
+                      <h2 className="text-2xl font-bold font-headline">You're Almost Done! 🎉</h2>
+                      <p className="text-muted-foreground max-w-md mx-auto">
+                        This platform was built by someone who went through the same Chancenkarte journey. Your ₹99 keeps it running for thousands of job seekers.
                       </p>
                     </div>
 
-                    <div className="grid md:grid-cols-2 gap-6 items-start">
-                      <Card className="bg-white border shadow-sm">
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-base">Pay ₹99 via UPI</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                          <img
-                            src="/api/qr"
-                            alt="UPI QR"
-                            className="w-full max-w-[260px] border rounded-lg"
-                          />
-                          <Button asChild className="bg-accent hover:bg-accent/90 text-white w-full">
-                            <Link href="/buy-me-coffee">Open full page</Link>
-                          </Button>
-                        </CardContent>
-                      </Card>
-
-                      <Card className="bg-white border shadow-sm">
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-base">AI key usage</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3 text-sm text-muted-foreground">
-                          <p>
-                            If you choose “Use my key”, you need to pay ₹99. If not, paste your own DeepSeek API key in AI settings.
-                          </p>
-                          <div className="flex gap-3">
-                            <Button variant="outline" className="w-full" onClick={nextStep}>
-                              Skip
-                            </Button>
-                            <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90" onClick={nextStep}>
-                              Continue
-                            </Button>
+                    {/* QR Code - Prominent */}
+                    <div className="max-w-sm mx-auto">
+                      <Card className="border-2 border-accent/20 shadow-lg rounded-2xl overflow-hidden bg-white">
+                        <div className="h-1 bg-gradient-to-r from-accent to-primary" />
+                        <CardContent className="p-6 space-y-4">
+                          <div className="text-center space-y-1">
+                            <p className="font-bold text-lg">Support with ₹99</p>
+                            <p className="text-xs text-muted-foreground">Scan with any UPI app</p>
+                          </div>
+                          <div className="border-2 border-dashed border-accent/20 rounded-xl bg-accent/5 p-4 flex justify-center">
+                            <img
+                              src="/api/qr"
+                              alt="UPI QR code"
+                              className="w-full max-w-[220px]"
+                            />
+                          </div>
+                          <div className="space-y-2 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-600 shrink-0" /> Keeps the platform free for everyone</div>
+                            <div className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-600 shrink-0" /> Funds AI server costs</div>
+                            <div className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-600 shrink-0" /> Unlocks priority 1:1 CV review</div>
                           </div>
                         </CardContent>
                       </Card>
+                    </div>
+
+                    <div className="text-center">
+                      <button
+                        onClick={nextStep}
+                        className="text-xs text-muted-foreground/60 underline underline-offset-4 hover:text-muted-foreground transition-colors"
+                      >
+                        Skip and continue to export →
+                      </button>
                     </div>
                   </div>
                 )}
@@ -1064,9 +1034,7 @@ export default function BuilderPage() {
 
                     <div className="grid gap-4">
                       {[
-                        cvData.chance.template === "two-page"
-                          ? "Two-page layout matches the template (sidebar + main column)"
-                          : "One-page layout matches the template",
+                        "Two-page layout with sidebar + main column",
                         "Professional Summary is 3-5 sentences maximum",
                         "Experience lists quantifiable results with action verbs",
                         "Language levels use CEFR (A1-C2) standards",
