@@ -384,21 +384,21 @@ export default function BuilderPage() {
                       <div className="flex items-center gap-3">
                         <FileText className="h-5 w-5 text-primary" />
                         <h3 className="font-bold">Quick Start: Upload Existing Resume</h3>
+                        <span className="bg-accent/10 text-accent text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest border border-accent/20">Coming Soon</span>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        Upload your PDF/DOCX resume and let AI populate the fields for you. 
-                        Requires "Use my key (₹99)" or your own DeepSeek API key.
+                        Soon you'll be able to upload your PDF/DOCX resume and let AI populate the fields for you. 
                       </p>
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-4 opacity-50 pointer-events-none">
                         <Input 
                           type="file" 
-                          accept=".pdf,.docx,.txt" 
+                          disabled
                           className="max-w-xs bg-white"
-                          onChange={handleResumeUpload}
-                          disabled={isParsing}
                         />
-                        {isParsing && <div className="text-sm text-primary animate-pulse font-medium">Parsing with AI...</div>}
                       </div>
+                      <p className="text-xs font-medium text-primary">
+                        ✨ Pro Tip: You can still use AI to generate your summary and experience bullets in the following steps!
+                      </p>
                     </div>
                   )}
 
