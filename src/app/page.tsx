@@ -27,15 +27,18 @@ export default function LandingPage() {
 
         <div className="container relative mx-auto px-4 md:px-6 grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-sm font-medium">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-sm font-medium animate-pulse shadow-[0_0_15px_rgba(245,158,11,0.2)]">
               <Award className="h-4 w-4" />
-              <span>Optimized for German Recruiters</span>
+              <span>Your Dream Job in Germany is Closer Than You Think</span>
             </div>
             <h1 className="font-headline text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground leading-tight">
-              Your Gateway to a Career in <span className="text-accent underline decoration-wavy underline-offset-8">Germany</span>
+              Build a CV That <span className="text-accent relative inline-block">
+                Recruiters Love
+                <div className="absolute -bottom-2 left-0 w-full h-1 bg-accent/30 blur-sm rounded-full" />
+              </span>
             </h1>
             <p className="text-lg text-primary-foreground/80 max-w-xl leading-relaxed">
-              Designed for international talent and <b>Chancenkarte</b> holders. Build a CV that meets strict German standards and speaks the language of local recruiters.
+              Stop guessing what German managers want. Use our expert-guided, AI-powered system to create a CV that <b>actually gets you interviewed</b>.
             </p>
             <div className="flex items-center gap-4 py-2">
               <div className="flex -space-x-2">
@@ -48,12 +51,12 @@ export default function LandingPage() {
               <p className="text-sm text-primary-foreground/70">Join 2,400+ expats landing interviews</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-white font-semibold">
+              <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-white font-bold h-14 px-8 rounded-2xl shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] transition-all">
                 <Link href="/signup">
-                  Start Building Your CV <ArrowRight className="ml-2 h-5 w-5" />
+                  Start My Success Story <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10">
+              <Button asChild variant="outline" size="lg" className="h-14 px-8 rounded-2xl border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10">
                 <Link href="/guide">Read the Guide</Link>
               </Button>
             </div>

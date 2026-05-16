@@ -24,6 +24,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import confetti from "canvas-confetti";
 
 const chapters = [
   { 
@@ -229,6 +230,14 @@ export default function GuidePage() {
       const newCompleted = [...completed, currentChapter];
       setCompleted(newCompleted);
       window.localStorage.setItem("guide_progress", JSON.stringify(newCompleted));
+      
+      // Party Popper!
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#2563eb', '#f59e0b', '#10b981']
+      });
     }
     if (!isLast) setCurrentChapter(prev => prev + 1);
   };
