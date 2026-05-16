@@ -5,38 +5,41 @@
 
 @layer base {
   :root {
-    /* Muted warm gray background: #F3F1EF */
-    --background: 30 11% 95%;
-    --foreground: 30 8% 10%;
+    /* Soft, fresh cool-toned background */
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
     
-    /* Dark charcoal primary: #383430 */
-    --primary: 30 8% 21%;
-    --primary-foreground: 30 11% 95%;
+    /* Vibrant Indigo for trust and clarity */
+    --primary: 224 76% 48%;
+    --primary-foreground: 210 40% 98%;
     
-    /* Muted red accent: #CC3333 */
-    --accent: 0 60% 50%;
+    /* Energetic Sunset Orange/Coral for excitement and action */
+    --accent: 15 100% 60%;
     --accent-foreground: 0 0% 100%;
 
+    /* Crisp white cards */
     --card: 0 0% 100%;
-    --card-foreground: 30 8% 10%;
+    --card-foreground: 222 47% 11%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 30 8% 10%;
+    --popover-foreground: 222 47% 11%;
     
-    --secondary: 30 8% 85%;
-    --secondary-foreground: 30 8% 21%;
+    /* Soft blue-gray for secondary elements */
+    --secondary: 214 32% 91%;
+    --secondary-foreground: 222 47% 11%;
     
-    --muted: 30 5% 90%;
-    --muted-foreground: 30 5% 40%;
+    /* Muted elements */
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
     
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 210 40% 98%;
     
-    --border: 30 8% 85%;
-    --input: 30 8% 85%;
-    --ring: 30 8% 21%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 224 76% 48%;
     
-    --radius: 0.5rem;
+    --radius: 0.75rem;
   }
 
   .dark {

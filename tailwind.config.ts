@@ -11,8 +11,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Calibri', 'Arial', 'sans-serif'],
-        headline: ['Calibri', 'Arial', 'sans-serif'],
+        body: ['var(--font-plus-jakarta)', 'sans-serif'],
+        headline: ['var(--font-outfit)', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
