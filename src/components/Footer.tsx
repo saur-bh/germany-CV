@@ -40,9 +40,9 @@ export function Footer() {
             </ul>
           </div>
         </div>
-        
+
         <div className="mt-10 pt-6 border-t text-xs text-muted-foreground flex items-center justify-between">
-          <p>© {year} GermanCV</p>
+          <p>© {year} Make My CV</p>
           <p>ATS-friendly. Simple. Single-column.</p>
         </div>
       </div>

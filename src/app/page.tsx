@@ -1,13 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { 
-  CheckCircle2, 
-  ArrowRight, 
-  ChevronRight, 
-  Award, 
-  ShieldCheck, 
-  Search, 
+import {
+  CheckCircle2,
+  ArrowRight,
+  ChevronRight,
+  Award,
+  ShieldCheck,
+  Search,
   AlertCircle,
   FileText
 } from "lucide-react";
@@ -24,7 +24,7 @@ export default function LandingPage() {
           <div className="absolute top-0 left-0 w-64 h-64 bg-accent rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl" />
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent rounded-full translate-x-1/2 translate-y-1/2 blur-3xl" />
         </div>
-        
+
         <div className="container relative mx-auto px-4 md:px-6 grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-sm font-medium">
@@ -39,7 +39,7 @@ export default function LandingPage() {
             </p>
             <div className="flex items-center gap-4 py-2">
               <div className="flex -space-x-2">
-                {[1,2,3,4].map(i => (
+                {[1, 2, 3, 4].map(i => (
                   <div key={i} className="h-8 w-8 rounded-full border-2 border-primary bg-muted flex items-center justify-center text-[10px] font-bold text-primary">
                     {String.fromCharCode(64 + i)}
                   </div>
@@ -63,12 +63,12 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="relative">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-primary-foreground/10 aspect-[4/3] lg:aspect-auto min-h-[400px]">
-              <Image 
-                src="/hero.png" 
-                alt="Working in Germany" 
+              <Image
+                src="/hero.png"
+                alt="Working in Germany"
                 fill
                 className="object-cover"
                 priority
@@ -211,7 +211,7 @@ export default function LandingPage() {
           </Card>
 
           <Card className="overflow-hidden border-2 border-green-100 bg-green-50/20">
-            <div className="bg-green-600 text-white text-xs font-bold px-3 py-1 uppercase tracking-widest text-center">GermanCV Optimized</div>
+            <div className="bg-green-600 text-white text-xs font-bold px-3 py-1 uppercase tracking-widest text-center">CV Optimized</div>
             <CardContent className="p-8 space-y-4">
               <h4 className="font-bold text-xl text-primary">Johannes Mueller</h4>
               <p className="text-xs text-muted-foreground">Professional Summary - Targeted at Senior Software Engineer</p>
@@ -330,7 +330,7 @@ export default function LandingPage() {
           <div className="relative z-10 space-y-6 max-w-2xl mx-auto">
             <h2 className="text-4xl md:text-5xl font-bold font-headline">Ready to apply for jobs in Germany?</h2>
             <p className="text-xl text-primary-foreground/80">
-              Join thousands of candidates using GermanCV to land interviews at top German companies.
+              Join thousands of candidates using  to land interviews at top German companies.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-white px-10 text-lg">
