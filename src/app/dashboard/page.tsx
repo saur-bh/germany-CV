@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, Trash2, Calendar, User, Clock, ArrowRight } from "lucide-react";
+import { FileText, Download, Trash2, Calendar, User, Clock, ArrowRight, Cpu } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 
