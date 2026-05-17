@@ -290,8 +290,8 @@ export default function BuilderPage() {
   }
 
   return (
-    <div className="bg-[#f8fafc] min-h-screen pb-20">
-      <div className="container mx-auto px-4 md:px-6 pt-10">
+    <div className="bg-[#f8fafc] print:bg-white min-h-screen pb-20 print:pb-0">
+      <div className="container mx-auto px-4 md:px-6 pt-10 print:hidden">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
             <div className="mb-10 space-y-2 flex justify-between items-end">
@@ -1240,8 +1240,8 @@ export default function BuilderPage() {
       </div>
       
       {/* Hidden CV Preview for Printing */}
-      <div className="hidden print:block fixed inset-0 bg-white z-[9999] overflow-auto">
-        <div className="container mx-auto p-12 bg-white max-w-[210mm] min-h-[297mm]">
+      <div className="hidden print:block w-full bg-white">
+        <div className="mx-auto bg-white max-w-[210mm]">
           <CVPreview cvData={cvData} photoUrl={photoUrl} />
         </div>
       </div>

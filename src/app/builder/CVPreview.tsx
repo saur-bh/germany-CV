@@ -1,3 +1,5 @@
+import React from "react";
+
 interface CVData {
   personal: {
     fullName: string;
@@ -28,149 +30,161 @@ export function CVPreview({ cvData, photoUrl }: { cvData: CVData; photoUrl: stri
   const today = new Date().toLocaleDateString("en-DE", { year: "numeric", month: "long", day: "numeric" });
 
   return (
-    <div className="bg-white text-[#222] p-10 max-w-[210mm] mx-auto min-h-[297mm] font-[Calibri,Arial,sans-serif] text-[11px] leading-[1.5] print:p-0 print:shadow-none">
-
-      {/* ───── HEADER ───── */}
-      <div className="flex items-start justify-between mb-6">
-        <div className="flex-1">
-          <h1 className="text-[22px] font-bold tracking-tight text-[#1a1a1a] mb-1">
-            {cvData.personal.fullName || "Full Name"}
-          </h1>
-          <div className="space-y-0 text-[10.5px] text-[#444]">
-            {cvData.personal.address && <p>{cvData.personal.address}</p>}
-            {cvData.personal.phone && <p>{cvData.personal.phone}</p>}
-            {cvData.personal.email && <p>{cvData.personal.email}</p>}
-            {cvData.personal.linkedin && (
-              <p className="text-blue-700">{cvData.personal.linkedin}</p>
-            )}
-            {cvData.personal.dob && <p>Date of Birth: {cvData.personal.dob}</p>}
-            {cvData.personal.nationality && <p>Nationality: {cvData.personal.nationality}</p>}
-          </div>
-        </div>
+    <div className="bg-white text-[#222] mx-auto min-h-[297mm] font-[Calibri,Arial,sans-serif] text-[11px] leading-[1.5] print:shadow-none flex">
+      {/* ───── SIDEBAR ───── */}
+      <div className="w-[32%] bg-[#f4f6f8] p-8 border-r border-gray-200 print:bg-[#f4f6f8] flex flex-col gap-6">
         {photoUrl && (
-          <img src={photoUrl} alt="Photo" className="w-[90px] h-[110px] object-cover border border-gray-200 ml-6" />
+          <div className="flex justify-center mb-2">
+            <img src={photoUrl} alt="Photo" className="w-[120px] h-[150px] object-cover border-4 border-white shadow-sm" />
+          </div>
+        )}
+
+        <SidebarSection title="Contact">
+          <div className="space-y-1.5 text-[10.5px]">
+            {cvData.personal.email && <p className="break-all">{cvData.personal.email}</p>}
+            {cvData.personal.phone && <p>{cvData.personal.phone}</p>}
+            {cvData.personal.address && <p>{cvData.personal.address}</p>}
+            {cvData.personal.linkedin && <p className="text-blue-700 break-all">{cvData.personal.linkedin}</p>}
+          </div>
+        </SidebarSection>
+
+        {(cvData.personal.dob || cvData.personal.nationality) && (
+          <SidebarSection title="Personal Info">
+            <div className="space-y-1.5 text-[10.5px]">
+              {cvData.personal.dob && <p>DOB: {cvData.personal.dob}</p>}
+              {cvData.personal.nationality && <p>Nationality: {cvData.personal.nationality}</p>}
+            </div>
+          </SidebarSection>
+        )}
+
+        {cvData.skills.length > 0 && (
+          <SidebarSection title="Skills">
+            <div className="flex flex-wrap gap-1.5">
+              {cvData.skills.map((skill, i) => (
+                <span key={i} className="bg-white border border-gray-200 px-2 py-0.5 rounded text-[10px] text-[#444]">
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </SidebarSection>
+        )}
+
+        {cvData.languages.some(l => l.name.trim()) && (
+          <SidebarSection title="Languages">
+            <div className="space-y-1.5 text-[10.5px]">
+              {cvData.languages.filter(l => l.name.trim()).map((l) => (
+                <div key={l.id} className="flex justify-between">
+                  <span>{l.name}</span>
+                  <span className="text-[#666]">{l.level}</span>
+                </div>
+              ))}
+            </div>
+          </SidebarSection>
+        )}
+
+        {(cvData.chance.visaStatus || cvData.personal.workAuth) && (
+          <SidebarSection title="Work Authorization">
+            <div className="space-y-1.5 text-[10.5px]">
+              {cvData.personal.workAuth && <p className="font-bold">{cvData.personal.workAuth}</p>}
+              {cvData.chance.visaStatus && <p>{cvData.chance.visaStatus}</p>}
+              {cvData.chance.availability && <p>Available: {cvData.chance.availability}</p>}
+              {cvData.chance.targetCity && <p>Target: {cvData.chance.targetCity}</p>}
+            </div>
+          </SidebarSection>
         )}
       </div>
 
-      {/* ───── PROFILE ───── */}
-      {cvData.summary && (
-        <Section title="Profile">
-          <p className="text-[11px] leading-relaxed">{cvData.summary}</p>
-        </Section>
-      )}
+      {/* ───── MAIN CONTENT ───── */}
+      <div className="w-[68%] p-8 bg-white flex flex-col gap-6">
+        <div>
+          <h1 className="text-[28px] font-bold tracking-tight text-[#1a1a1a] leading-none mb-1">
+            {cvData.personal.fullName || "Full Name"}
+          </h1>
+          {cvData.targetRole && (
+            <h2 className="text-[14px] text-blue-700 font-medium tracking-wide uppercase">
+              {cvData.targetRole}
+            </h2>
+          )}
+        </div>
 
-      {/* ───── AREAS OF EXPERTISE ───── */}
-      {cvData.skills.length > 0 && (
-        <Section title="Areas of Expertise">
-          <p className="text-[11px] leading-relaxed">{cvData.skills.join(" · ")}</p>
-        </Section>
-      )}
+        {cvData.summary && (
+          <MainSection title="Professional Summary">
+            <p className="text-[11px] leading-relaxed text-[#333]">{cvData.summary}</p>
+          </MainSection>
+        )}
 
-      {/* ───── WORK EXPERIENCE ───── */}
-      {cvData.experience.some(e => e.title || e.company) && (
-        <Section title="Work Experience">
-          <div className="space-y-4">
-            {cvData.experience.map((exp) => (
-              <div key={exp.id} className="grid grid-cols-[130px_1fr] gap-4">
-                <div className="text-[10.5px] text-[#555] pt-0.5">{exp.duration}</div>
-                <div className="space-y-1">
-                  <p className="font-bold text-[11px]">
-                    {exp.company}{exp.location ? `, ${exp.location}` : ""}
-                  </p>
-                  <p className="text-[11px] italic">{exp.title}</p>
+        {cvData.experience.some(e => e.title || e.company) && (
+          <MainSection title="Work Experience">
+            <div className="space-y-5">
+              {cvData.experience.map((exp) => (
+                <div key={exp.id}>
+                  <div className="flex justify-between items-baseline mb-0.5">
+                    <h3 className="font-bold text-[12px] text-[#1a1a1a]">{exp.title}</h3>
+                    <span className="text-[10.5px] text-[#666] whitespace-nowrap ml-2">{exp.duration}</span>
+                  </div>
+                  <div className="text-[11px] italic text-[#444] mb-1.5">
+                    {exp.company}{exp.location ? ` | ${exp.location}` : ""}
+                  </div>
                   {exp.description && (
-                    <ul className="list-disc ml-4 space-y-0.5 text-[10.5px]">
+                    <ul className="list-disc ml-4 space-y-0.5 text-[10.5px] text-[#333]">
                       {exp.description.split("\n").filter(Boolean).map((line, i) => (
-                        <li key={i} className="leading-relaxed">{line.replace(/^[-•\s]+/, "")}</li>
+                        <li key={i} className="leading-relaxed pl-1">{line.replace(/^[-•\s]+/, "")}</li>
                       ))}
                     </ul>
                   )}
                 </div>
-              </div>
-            ))}
-          </div>
-        </Section>
-      )}
-
-      {/* ───── EDUCATION ───── */}
-      {cvData.education.some(e => e.degree || e.school) && (
-        <Section title="Education">
-          <div className="space-y-3">
-            {cvData.education.map((ed) => (
-              <div key={ed.id} className="grid grid-cols-[130px_1fr] gap-4">
-                <div className="text-[10.5px] text-[#555] pt-0.5">{ed.year}</div>
-                <div className="space-y-0.5">
-                  <p className="text-[11px]"><span className="font-bold">{ed.school}</span>{ed.location ? `, ${ed.location}` : ""}</p>
-                  <p className="text-[11px]">{ed.degree}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Section>
-      )}
-
-      {/* ───── SKILLS (table style) ───── */}
-      {cvData.skills.length > 0 && (
-        <Section title="Skills">
-          <div className="grid grid-cols-[130px_1fr] gap-4">
-            <div className="text-[10.5px] text-[#555]">Computer/Software</div>
-            <div className="text-[11px]">{cvData.skills.join(", ")}</div>
-          </div>
-        </Section>
-      )}
-
-      {/* ───── LANGUAGES ───── */}
-      {cvData.languages.some(l => l.name.trim()) && (
-        <Section title="Language Skills">
-          <div className="grid grid-cols-[130px_1fr] gap-4">
-            <div className="text-[10.5px] text-[#555]">Languages</div>
-            <div className="space-y-0.5 text-[11px]">
-              {cvData.languages.filter(l => l.name.trim()).map((l) => (
-                <p key={l.id}>{l.name}: {l.level}</p>
               ))}
             </div>
-          </div>
-        </Section>
-      )}
+          </MainSection>
+        )}
 
-      {/* ───── VISA / AVAILABILITY (Chancenkarte specific) ───── */}
-      {(cvData.chance.visaStatus || cvData.personal.workAuth) && (
-        <Section title="Work Authorization">
-          <div className="grid grid-cols-[130px_1fr] gap-4">
-            <div className="text-[10.5px] text-[#555]">Status</div>
-            <div className="text-[11px] space-y-0.5">
-              {cvData.personal.workAuth && <p>{cvData.personal.workAuth}</p>}
-              {cvData.chance.visaStatus && <p>{cvData.chance.visaStatus}</p>}
-              {cvData.chance.availability && <p>Available: {cvData.chance.availability}</p>}
-              {cvData.chance.targetCity && <p>Target location: {cvData.chance.targetCity}</p>}
+        {cvData.education.some(e => e.degree || e.school) && (
+          <MainSection title="Education">
+            <div className="space-y-4">
+              {cvData.education.map((ed) => (
+                <div key={ed.id}>
+                  <div className="flex justify-between items-baseline mb-0.5">
+                    <h3 className="font-bold text-[11px] text-[#1a1a1a]">{ed.degree}</h3>
+                    <span className="text-[10.5px] text-[#666] whitespace-nowrap ml-2">{ed.year}</span>
+                  </div>
+                  <div className="text-[11px] text-[#444]">
+                    {ed.school}{ed.location ? `, ${ed.location}` : ""}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </MainSection>
+        )}
+
+        <div className="mt-auto pt-8">
+          <div className="border-t border-gray-200 pt-4 text-[10px] text-[#666] space-y-3">
+            <p>I hereby declare that the information provided above is true and correct to the best of my knowledge.</p>
+            <div>
+              <p>{cvData.chance.currentCity || "Place"}, {today}</p>
+              <p className="font-bold text-[#1a1a1a] mt-1">{cvData.personal.fullName || "Full Name"}</p>
             </div>
           </div>
-        </Section>
-      )}
-
-      {/* ───── REFERENCES ───── */}
-      <Section title="References">
-        <p className="text-[11px] italic">Available upon request.</p>
-      </Section>
-
-      {/* ───── DECLARATION ───── */}
-      <div className="mt-8 pt-6 border-t border-gray-200 text-[10.5px] text-[#555] space-y-4">
-        <p>I hereby declare that the information provided above is true and correct to the best of my knowledge.</p>
-        <div className="pt-4">
-          <p>{cvData.chance.currentCity || "Place"}, {today}</p>
-          <p className="font-bold text-[#222]">{cvData.personal.fullName || "Full Name"}</p>
         </div>
       </div>
     </div>
   );
 }
 
-/* ── Reusable section heading ── */
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function SidebarSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="mb-5">
-      <h2 className="text-[13px] font-bold text-[#1a1a1a] uppercase tracking-wide border-b border-[#ccc] pb-1 mb-2">{title}</h2>
+    <div className="mb-2">
+      <h3 className="text-[11px] font-bold text-[#1a1a1a] uppercase tracking-wider mb-2 border-b border-gray-300 pb-1">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+function MainSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section>
+      <h2 className="text-[14px] font-bold text-[#1a1a1a] uppercase tracking-wider border-b-2 border-[#1a1a1a] pb-1 mb-3">{title}</h2>
       {children}
     </section>
   );
 }
+
