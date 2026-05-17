@@ -30,7 +30,7 @@ export function CVPreview({ cvData, photoUrl }: { cvData: CVData; photoUrl: stri
   const today = new Date().toLocaleDateString("en-DE", { year: "numeric", month: "long", day: "numeric" });
 
   return (
-    <div className="bg-white text-[#222] mx-auto min-h-[297mm] font-[Calibri,Arial,sans-serif] text-[11px] leading-[1.5] print:shadow-none flex">
+    <div className="bg-white text-[#222] mx-auto w-[210mm] min-h-[297mm] font-[Calibri,Arial,sans-serif] text-[11px] leading-[1.5] print:shadow-none flex shrink-0">
       {/* ───── SIDEBAR ───── */}
       <div className="w-[32%] bg-[#f4f6f8] p-8 border-r border-gray-200 print:bg-[#f4f6f8] flex flex-col gap-6">
         {photoUrl && (

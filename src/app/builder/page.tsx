@@ -290,7 +290,7 @@ export default function BuilderPage() {
   }
 
   return (
-    <div className="bg-[#f8fafc] print:bg-white min-h-screen pb-20 print:pb-0">
+    <div className="bg-[#f8fafc] print:bg-white min-h-screen pb-20 print:pb-0 overflow-x-hidden">
       <div className="container mx-auto px-4 md:px-6 pt-10 print:hidden">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
@@ -364,7 +364,7 @@ export default function BuilderPage() {
             </aside>
 
             {/* Main Form Area */}
-            <div className="space-y-6">
+            <div className={cn("space-y-6", showPreview ? "hidden lg:block" : "block")}>
               <Card className="shadow-xl border-none bg-white/70 backdrop-blur-xl rounded-[2rem] overflow-hidden">
                 <div className="p-1 bg-gradient-to-r from-primary via-accent to-primary animate-gradient-x" />
                 <CardContent className="p-8 md:p-12">
@@ -1136,7 +1136,10 @@ export default function BuilderPage() {
             </div>
 
             {/* Sticky Panel (Tips or Preview) */}
-            <aside className="hidden lg:block sticky top-28 space-y-6 max-h-[calc(100vh-8rem)] overflow-y-auto no-scrollbar">
+            <aside className={cn(
+              "lg:block sticky top-28 space-y-6 lg:max-h-[calc(100vh-8rem)] overflow-y-auto no-scrollbar pb-24 lg:pb-0",
+              showPreview ? "block" : "hidden"
+            )}>
               {/* Toggle between Preview and Tips */}
               <div className="flex items-center gap-2 p-1 bg-muted rounded-2xl">
                 <button
@@ -1165,8 +1168,10 @@ export default function BuilderPage() {
                     <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Live Preview</p>
                     <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold animate-pulse">● Auto-syncing</span>
                   </div>
-                  <div className="rounded-2xl overflow-hidden shadow-2xl border bg-white scale-[0.55] origin-top -mb-[45%]">
-                    <CVPreview cvData={cvData} photoUrl={photoUrl} />
+                  <div className="flex justify-center">
+                    <div className="w-[210mm] rounded-2xl overflow-hidden shadow-2xl border bg-white scale-[0.40] sm:scale-[0.45] md:scale-[0.55] origin-top -mb-[80%] sm:-mb-[70%] md:-mb-[55%] lg:-mb-[45%]">
+                      <CVPreview cvData={cvData} photoUrl={photoUrl} />
+                    </div>
                   </div>
                 </div>
               ) : (
